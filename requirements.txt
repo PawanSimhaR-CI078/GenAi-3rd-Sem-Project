@@ -1,0 +1,3 @@
+# TOLSTOY Python dependencies
+# Versions to be pinned during the implementation phase.
+python-dotenv

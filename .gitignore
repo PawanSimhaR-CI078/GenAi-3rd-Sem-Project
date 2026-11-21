@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.Python
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment secrets
+.env
+.env.*
+
+!.env.example
+
+# SQLite database
+*.db
+*.sqlite
+*.sqlite3
+database/tolstoy.db
+database/tolstoy.db-journal
+database/tolstoy.db-wal
+database/tolstoy.db-shm
+
+# Database backups
+database/backups/*
+!database/backups/.gitkeep
+
+# Database exports
+database/exports/*
+!database/exports/.gitkeep
+
+# Node (not a project dependency; excluded in case of stray tooling)
+node_modules/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
