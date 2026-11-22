@@ -1,0 +1,17 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Users{% endblock %}
+{% block heading %}User Management{% endblock %}
+{% block content %}
+<div class="bg-white p-4 rounded shadow">
+  <table class="w-full text-sm" id="tbl"><thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Active</th><th>Tokens</th></tr></thead><tbody></tbody></table>
+</div>
+<script>
+async function load(){
+  const r=await fetch('/api/v1/admin/users',{credentials:'same-origin'});
+  const j=await r.json();
+  if(!j.success) return;
+  document.querySelector('#tbl tbody').innerHTML=j.data.users.map(u=>`<tr class="border-t"><td>${u.id}</td><td>${u.username}</td><td>${u.role}</td><td>${u.is_active}</td><td>${u.token_balance}</td></tr>`).join('');
+}
+load();
+</script>
+{% endblock %}

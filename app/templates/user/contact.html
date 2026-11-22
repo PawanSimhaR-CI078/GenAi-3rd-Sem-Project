@@ -1,0 +1,26 @@
+{% extends "user/base_user.html" %}
+{% block title %}Contact Admin{% endblock %}
+{% block content %}
+<div class="bg-white p-6 rounded shadow max-w-lg">
+  <h2 class="text-2xl font-bold mb-4">Contact Administrator</h2>
+  <form id="form">
+    <label class="block mb-1">Subject</label>
+    <input name="subject" class="w-full border p-2 mb-3 rounded" required>
+    <label class="block mb-1">Message</label>
+    <textarea name="message" rows="5" class="w-full border p-2 mb-3 rounded" required></textarea>
+    <button class="bg-blue-600 text-white px-4 py-2 rounded">Send</button>
+  </form>
+  <div id="msg" class="mt-2"></div>
+</div>
+<script>
+document.getElementById('form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const fd=new FormData(e.target);
+  const body=Object.fromEntries(fd.entries());
+  const r=await fetch('/api/v1/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),credentials:'same-origin'});
+  const j=await r.json();
+  const m=document.getElementById('msg');
+  m.textContent=j.message; m.className='mt-2 '+(j.success?'text-green-600':'text-red-600');
+});
+</script>
+{% endblock %}

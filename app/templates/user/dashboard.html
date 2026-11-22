@@ -1,0 +1,29 @@
+{% extends "user/base_user.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <div class="bg-white p-4 rounded shadow"><div class="text-gray-500">Total Stories</div><div id="totalStories" class="text-2xl font-bold">-</div></div>
+  <div class="bg-white p-4 rounded shadow"><div class="text-gray-500">Editing</div><div id="editingCount" class="text-2xl font-bold">-</div></div>
+  <div class="bg-white p-4 rounded shadow"><div class="text-gray-500">Completed</div><div id="completedCount" class="text-2xl font-bold">-</div></div>
+</div>
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="font-bold mb-2">Recent Stories</h2>
+  <div id="recentStories">Loading...</div>
+  <a href="/stories/new" class="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded">Create New Story</a>
+</div>
+<script>
+async function load(){
+  const r=await fetch('/api/v1/stories',{credentials:'same-origin'});
+  const j=await r.json();
+  if(!j.success) return;
+  const stories=j.data.stories;
+  document.getElementById('totalStories').textContent=stories.length;
+  document.getElementById('editingCount').textContent=stories.filter(s=>s.story_status==='EDITING').length;
+  document.getElementById('completedCount').textContent=stories.filter(s=>s.story_status==='COMPLETED').length;
+  const el=document.getElementById('recentStories');
+  if(!stories.length){ el.textContent='No stories yet.'; return; }
+  el.innerHTML=stories.slice(0,5).map(s=>`<div class="border-b py-2"><a href="/stories/${s.id}" class="text-blue-600">${s.title}</a> <span class="text-sm text-gray-500">(${s.story_status})</span></div>`).join('');
+}
+load();
+</script>
+{% endblock %}

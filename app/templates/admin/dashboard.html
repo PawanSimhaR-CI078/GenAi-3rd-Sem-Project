@@ -1,0 +1,32 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block heading %}Analytics Dashboard{% endblock %}
+{% block content %}
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="cards"></div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="bg-white p-4 rounded shadow"><canvas id="c1"></canvas></div>
+  <div class="bg-white p-4 rounded shadow"><canvas id="c2"></canvas></div>
+  <div class="bg-white p-4 rounded shadow"><canvas id="c3"></canvas></div>
+  <div class="bg-white p-4 rounded shadow"><canvas id="c4"></canvas></div>
+</div>
+<script>
+async function loadSummary(){
+  const r=await fetch('/api/v1/admin/analytics/summary',{credentials:'same-origin'});
+  const j=await r.json();
+  if(!j.success) return;
+  const d=j.data;
+  document.getElementById('cards').innerHTML=Object.entries(d).map(([k,v])=>`<div class="bg-white p-3 rounded shadow"><div class="text-sm text-gray-500">${k}</div><div class="text-xl font-bold">${v}</div></div>`).join('');
+}
+async function loadChart(id,key,type){
+  const r=await fetch('/api/v1/admin/analytics/charts?chart='+key,{credentials:'same-origin'});
+  const j=await r.json();
+  if(!j.success) return;
+  new Chart(document.getElementById(id),{type:type,data:{labels:j.data.labels,datasets:[{label:key,data:j.data.data,backgroundColor:['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6']}]},options:{responsive:true}});
+}
+loadSummary();
+loadChart('c1','users_status','doughnut');
+loadChart('c2','stories_status','bar');
+loadChart('c3','stories_per_day','line');
+loadChart('c4','gemini_usage','bar');
+</script>
+{% endblock %}

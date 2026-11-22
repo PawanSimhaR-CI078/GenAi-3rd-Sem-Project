@@ -1,0 +1,18 @@
+{% extends "user/base_user.html" %}
+{% block title %}Wallet{% endblock %}
+{% block content %}
+<div class="bg-white p-6 rounded shadow max-w-md">
+  <h2 class="text-2xl font-bold mb-4">Token Wallet</h2>
+  <div class="text-3xl font-bold mb-2" id="bal">-</div>
+  <div class="text-sm text-gray-600 mb-4" id="info"></div>
+  <p class="text-sm">You receive +5 tokens every 48 hours (additive). Initial allocation: 5 tokens.</p>
+</div>
+<script>
+async function load(){
+  const r=await fetch('/api/v1/wallet',{credentials:'same-origin'});
+  const j=await r.json();
+  if(j.success){ document.getElementById('bal').textContent=j.data.token_balance+' tokens'; document.getElementById('info').textContent='Last refill: '+j.data.last_token_refill_at+' | Next refill after 48h'; }
+}
+load();
+</script>
+{% endblock %}

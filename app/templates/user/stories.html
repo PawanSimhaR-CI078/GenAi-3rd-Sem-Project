@@ -1,0 +1,24 @@
+{% extends "user/base_user.html" %}
+{% block title %}My Stories{% endblock %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">My Stories</h2>
+<div id="list">Loading...</div>
+<script>
+async function load(){
+  const params=new URLSearchParams(location.search);
+  const status=params.get('status');
+  const url='/api/v1/stories'+(status?('?status='+status):'');
+  const r=await fetch(url,{credentials:'same-origin'});
+  const j=await r.json();
+  if(!j.success){ document.getElementById('list').textContent=j.message; return; }
+  const stories=j.data.stories;
+  if(!stories.length){ document.getElementById('list').textContent='No stories.'; return; }
+  document.getElementById('list').innerHTML=stories.map(s=>`
+    <div class="bg-white p-4 rounded shadow mb-3">
+      <div class="flex justify-between"><a href="/stories/${s.id}" class="font-bold text-blue-600">${s.title}</a><span class="text-sm">${s.story_status}</span></div>
+      <p class="text-sm text-gray-600 mt-1">${(s.content||'').slice(0,120)}</p>
+    </div>`).join('');
+}
+load();
+</script>
+{% endblock %}

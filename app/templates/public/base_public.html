@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}TOLSTOY{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+<header class="bg-white shadow">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <a href="/" class="font-bold text-xl">TOLSTOY</a>
+    <nav class="space-x-4">
+      <a href="/" class="hover:underline">Home</a>
+      <a href="/login" class="hover:underline">Login</a>
+      <a href="/register" class="hover:underline">Register</a>
+      <a href="/admin/login" class="hover:underline">Admin</a>
+    </nav>
+  </div>
+</header>
+<main class="max-w-6xl mx-auto px-4 py-6">
+  {% with messages = get_flashed_messages() %}{% if messages %}{% for m in messages %}<div class="bg-blue-100 p-2 mb-2 rounded">{{ m }}</div>{% endfor %}{% endif %}{% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

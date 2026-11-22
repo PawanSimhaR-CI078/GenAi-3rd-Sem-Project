@@ -1,2 +1,3 @@
-# Shared Flask extension instances.
-# Implemented after the dependency stack is finalized.
+from flask_wtf.csrf import CSRFProtect
+
+csrf = CSRFProtect()

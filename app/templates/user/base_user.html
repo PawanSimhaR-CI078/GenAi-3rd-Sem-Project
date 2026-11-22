@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}TOLSTOY{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen flex">
+<aside class="w-60 bg-white shadow p-4 hidden md:block">
+  <div class="font-bold text-xl mb-4">TOLSTOY</div>
+  <nav class="space-y-2">
+    <a href="/dashboard" class="block hover:text-blue-600">Dashboard</a>
+    <a href="/stories/new" class="block hover:text-blue-600">Create Story</a>
+    <a href="/stories?status=EDITING" class="block hover:text-blue-600">Editing</a>
+    <a href="/stories?status=COMPLETED" class="block hover:text-blue-600">Completed</a>
+    <a href="/wallet" class="block hover:text-blue-600">Token Wallet</a>
+    <a href="/contact" class="block hover:text-blue-600">Contact Admin</a>
+    <a href="/profile" class="block hover:text-blue-600">Profile</a>
+    <a href="#" onclick="logout()" class="block text-red-600">Logout</a>
+  </nav>
+</aside>
+<main class="flex-1 p-6">
+  <header class="flex justify-between items-center mb-6 bg-white p-3 rounded shadow">
+    <div id="welcome" class="font-semibold">Welcome</div>
+    <div class="flex items-center space-x-4">
+      <span id="tokenBalance" class="font-bold">Tokens: -</span>
+      <span id="clock" class="text-sm text-gray-600"></span>
+      <span id="date" class="text-sm text-gray-600"></span>
+    </div>
+  </header>
+  {% block content %}{% endblock %}
+</main>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+function logout(){ fetch('/api/v1/auth/logout',{method:'POST',credentials:'same-origin'}).then(()=>location.href='/login'); }
+async function loadMe(){
+  const r=await fetch('/api/v1/auth/me',{credentials:'same-origin'});
+  const j=await r.json();
+  if(j.success){ document.getElementById('welcome').textContent='Welcome, '+(j.data.display_name||j.data.username); document.getElementById('tokenBalance').textContent='Tokens: '+j.data.token_balance; }
+  else { location.href='/login'; }
+}
+function tick(){ const n=new Date(); document.getElementById('clock').textContent=n.toLocaleTimeString(); document.getElementById('date').textContent=n.toLocaleDateString(); }
+setInterval(tick,1000); tick(); loadMe();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

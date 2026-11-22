@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}TOLSTOY Admin{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen flex">
+<aside class="w-64 bg-gray-800 text-white p-4">
+  <div class="font-bold text-xl mb-4">Admin</div>
+  <nav class="space-y-2">
+    <a href="/admin" class="block hover:text-blue-300">Dashboard</a>
+    <a href="/admin/users" class="block hover:text-blue-300">Users</a>
+    <a href="/admin/stories" class="block hover:text-blue-300">Stories</a>
+    <a href="/admin/database" class="block hover:text-blue-300">Database</a>
+    <a href="/admin/settings" class="block hover:text-blue-300">Settings</a>
+    <a href="#" onclick="logout()" class="block text-red-300">Logout</a>
+  </nav>
+</aside>
+<main class="flex-1 p-6">
+  <header class="mb-6"><h1 class="text-2xl font-bold">{% block heading %}Admin{% endblock %}</h1></header>
+  {% block content %}{% endblock %}
+</main>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>function logout(){ fetch('/api/v1/auth/logout',{method:'POST',credentials:'same-origin'}).then(()=>location.href='/admin/login'); }</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

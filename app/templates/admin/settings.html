@@ -1,0 +1,31 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Settings{% endblock %}
+{% block heading %}System Settings & Maintenance{% endblock %}
+{% block content %}
+<div class="bg-white p-4 rounded shadow mb-4">
+  <h3 class="font-bold mb-2">Settings</h3>
+  <div id="settings"></div>
+</div>
+<div class="bg-white p-4 rounded shadow">
+  <h3 class="font-bold mb-2">Maintenance Mode</h3>
+  <label><input type="checkbox" id="maint"> Enabled</label>
+  <input id="pw" type="password" placeholder="Admin password" class="border p-2 ml-2 rounded">
+  <button onclick="toggleMaint()" class="bg-red-600 text-white px-3 py-2 rounded ml-2">Apply</button>
+  <div id="msg" class="mt-2"></div>
+</div>
+<script>
+async function loadSettings(){
+  const r=await fetch('/api/v1/admin/settings',{credentials:'same-origin'});
+  const j=await r.json();
+  if(j.success) document.getElementById('settings').innerHTML=j.data.settings.map(s=>`<div class="border-b py-1"><b>${s.setting_key}</b> = ${s.setting_value} <span class="text-gray-500">(${s.value_type})</span></div>`).join('');
+}
+async function toggleMaint(){
+  const enabled=document.getElementById('maint').checked;
+  const password=document.getElementById('pw').value;
+  const r=await fetch('/api/v1/admin/maintenance',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled,password}),credentials:'same-origin'});
+  const j=await r.json();
+  const m=document.getElementById('msg'); m.textContent=j.message; m.className='mt-2 '+(j.success?'text-green-600':'text-red-600');
+}
+loadSettings();
+</script>
+{% endblock %}
