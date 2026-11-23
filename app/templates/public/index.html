@@ -1,11 +1,49 @@
 {% extends "public/base_public.html" %}
-{% block title %}TOLSTOY - Home{% endblock %}
+{% block title %}TOLSTOY — AI Story to Comic Script Generator{% endblock %}
 {% block content %}
-<section class="text-center py-16">
-  <h1 class="text-4xl font-bold mb-4">TOLSTOY</h1>
-  <p class="text-lg text-gray-600 mb-6">AI Story to Comic Script Generator</p>
-  <p class="mb-8">Turn your story ideas into structured comic scripts with AI.</p>
-  <a href="/register" class="bg-blue-600 text-white px-6 py-3 rounded mr-2">Get Started</a>
-  <a href="/login" class="bg-gray-200 px-6 py-3 rounded">Login</a>
+<section class="hero">
+  <div class="max-w-3xl mx-auto px-6">
+    <span class="badge badge-primary mb-4">AI-powered storytelling</span>
+    <h1 class="hero-title">Turn your story ideas into comic scripts</h1>
+    <p class="hero-sub">TOLSTOY transforms your ideas into structured, scene-by-scene comic scripts using AI. Write, generate, edit, and manage your stories in one workspace.</p>
+    <div class="flex gap-3 justify-center">
+      <a href="/register" class="btn btn-primary btn-lg">Start creating</a>
+      <a href="/login" class="btn btn-secondary btn-lg">Sign in</a>
+    </div>
+  </div>
+</section>
+
+<section class="max-w-6xl mx-auto px-6 pb-16">
+  <h2 class="text-center mb-8">How it works</h2>
+  <div class="feature-grid">
+    <div class="card">
+      <h3 class="card-title mb-2">1. Write your story</h3>
+      <p class="text-sm text-secondary">Add a title, idea, characters, audience and length. TOLSTOY captures your creative direction.</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title mb-2">2. Generate with AI</h3>
+      <p class="text-sm text-secondary">Gemini turns your input into a structured comic script with scenes, panels, dialogue and narration.</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title mb-2">3. Edit & organize</h3>
+      <p class="text-sm text-secondary">Refine scripts, move stories between Editing and Completed, and track your token balance.</p>
+    </div>
+  </div>
+</section>
+
+<section class="max-w-6xl mx-auto px-6 pb-16">
+  <h2 class="text-center mb-8">Features</h2>
+  <div class="feature-grid">
+    <div class="card"><h3 class="card-title mb-2">Structured scripts</h3><p class="text-sm text-secondary">Scenes, panels, characters, dialogue and narration in clean JSON.</p></div>
+    <div class="card"><h3 class="card-title mb-2">Token system</h3><p class="text-sm text-secondary">5 tokens to start, +5 every 48 hours. Transparent usage.</p></div>
+    <div class="card"><h3 class="card-title mb-2">Admin dashboard</h3><p class="text-sm text-secondary">Analytics, user management, database viewer, maintenance mode.</p></div>
+    <div class="card"><h3 class="card-title mb-2">Secure by design</h3><p class="text-sm text-secondary">Session auth, CSRF, hashed passwords, backend enforcement.</p></div>
+  </div>
+</section>
+
+<section class="max-w-3xl mx-auto px-6 pb-16 text-center">
+  <h2 class="mb-4">Ready to create?</h2>
+  <p class="text-secondary mb-6">Start your first comic script in seconds.</p>
+  <a href="/register" class="btn btn-primary btn-lg">Start creating</a>
 </section>
 {% endblock %}

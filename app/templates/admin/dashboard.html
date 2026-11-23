@@ -4,10 +4,10 @@
 {% block content %}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="cards"></div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <div class="bg-white p-4 rounded shadow"><canvas id="c1"></canvas></div>
-  <div class="bg-white p-4 rounded shadow"><canvas id="c2"></canvas></div>
-  <div class="bg-white p-4 rounded shadow"><canvas id="c3"></canvas></div>
-  <div class="bg-white p-4 rounded shadow"><canvas id="c4"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Users by status</h3><canvas id="c1"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Stories by status</h3><canvas id="c2"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Stories per day</h3><canvas id="c3"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Gemini usage</h3><canvas id="c4"></canvas></div>
 </div>
 <script>
 async function loadSummary(){
@@ -15,13 +15,14 @@ async function loadSummary(){
   const j=await r.json();
   if(!j.success) return;
   const d=j.data;
-  document.getElementById('cards').innerHTML=Object.entries(d).map(([k,v])=>`<div class="bg-white p-3 rounded shadow"><div class="text-sm text-gray-500">${k}</div><div class="text-xl font-bold">${v}</div></div>`).join('');
+  const labels={'total_users':'Total users','active_users':'Active users','total_stories':'Total stories','editing_stories':'Editing','completed_stories':'Completed','tokens_consumed':'Tokens consumed','gemini_input_tokens':'Gemini input','gemini_output_tokens':'Gemini output','generation_succeeded':'Generated','generation_failed':'Failed'};
+  document.getElementById('cards').innerHTML=Object.entries(d).map(([k,v])=>`<div class="stat-card"><div class="stat-label">${labels[k]||k}</div><div class="stat-value">${v}</div></div>`).join('');
 }
 async function loadChart(id,key,type){
   const r=await fetch('/api/v1/admin/analytics/charts?chart='+key,{credentials:'same-origin'});
   const j=await r.json();
   if(!j.success) return;
-  new Chart(document.getElementById(id),{type:type,data:{labels:j.data.labels,datasets:[{label:key,data:j.data.data,backgroundColor:['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6']}]},options:{responsive:true}});
+  new Chart(document.getElementById(id),{type:type,data:{labels:j.data.labels,datasets:[{label:key,data:j.data.data,backgroundColor:['#5546E8','#16A36A','#E9A23B','#DC4C4C','#3984E8','#9299AA']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
 }
 loadSummary();
 loadChart('c1','users_status','doughnut');

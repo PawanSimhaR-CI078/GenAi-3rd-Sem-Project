@@ -1,12 +1,21 @@
 {% extends "user/base_user.html" %}
-{% block title %}Profile{% endblock %}
+{% block title %}Profile — TOLSTOY{% endblock %}
 {% block content %}
-<div class="bg-white p-6 rounded shadow max-w-md">
-  <h2 class="text-2xl font-bold mb-4">Profile</h2>
+<div class="mb-6">
+  <h1 class="mb-1">Profile</h1>
+  <p class="text-secondary">Your account information.</p>
+</div>
+<div class="card max-w-md">
   <div id="info">Loading...</div>
 </div>
 <script>
-async function load(){ const r=await fetch('/api/v1/auth/me',{credentials:'same-origin'}); const j=await r.json(); if(j.success){ const d=j.data; document.getElementById('info').innerHTML=`<p><b>Username:</b> ${d.username}</p><p><b>Role:</b> ${d.role}</p><p><b>Tokens:</b> ${d.token_balance}</p>`; } }
+async function load(){ const r=await fetch('/api/v1/auth/me',{credentials:'same-origin'}); const j=await r.json(); if(j.success){ const d=j.data; document.getElementById('info').innerHTML=`
+    <div class="space-y-3 text-sm">
+      <div class="flex justify-between"><span class="text-secondary">Username</span><span class="font-medium">${d.username}</span></div>
+      <div class="flex justify-between"><span class="text-secondary">Display name</span><span class="font-medium">${d.display_name||'-'}</span></div>
+      <div class="flex justify-between"><span class="text-secondary">Role</span><span class="badge badge-primary">${d.role}</span></div>
+      <div class="flex justify-between"><span class="text-secondary">Tokens</span><span class="font-medium">${d.token_balance}</span></div>
+    </div>`; } }
 load();
 </script>
 {% endblock %}

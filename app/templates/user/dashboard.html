@@ -1,15 +1,36 @@
 {% extends "user/base_user.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard — TOLSTOY{% endblock %}
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-  <div class="bg-white p-4 rounded shadow"><div class="text-gray-500">Total Stories</div><div id="totalStories" class="text-2xl font-bold">-</div></div>
-  <div class="bg-white p-4 rounded shadow"><div class="text-gray-500">Editing</div><div id="editingCount" class="text-2xl font-bold">-</div></div>
-  <div class="bg-white p-4 rounded shadow"><div class="text-gray-500">Completed</div><div id="completedCount" class="text-2xl font-bold">-</div></div>
+<div class="mb-6">
+  <h1 class="mb-1">Dashboard</h1>
+  <p class="text-secondary">Your creative workspace.</p>
 </div>
-<div class="bg-white p-4 rounded shadow">
-  <h2 class="font-bold mb-2">Recent Stories</h2>
-  <div id="recentStories">Loading...</div>
-  <a href="/stories/new" class="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded">Create New Story</a>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+  <div class="stat-card">
+    <div class="stat-label">Available tokens</div>
+    <div class="stat-value" id="tokenStat">-</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Total stories</div>
+    <div class="stat-value" id="totalStories">-</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Editing</div>
+    <div class="stat-value" id="editingCount">-</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Completed</div>
+    <div class="stat-value" id="completedCount">-</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Recent stories</h2>
+    <a href="/stories/new" class="btn btn-primary btn-sm">Create story</a>
+  </div>
+  <div id="recentStories"><div class="skeleton" style="height:60px;"></div></div>
 </div>
 <script>
 async function load(){
@@ -20,9 +41,18 @@ async function load(){
   document.getElementById('totalStories').textContent=stories.length;
   document.getElementById('editingCount').textContent=stories.filter(s=>s.story_status==='EDITING').length;
   document.getElementById('completedCount').textContent=stories.filter(s=>s.story_status==='COMPLETED').length;
+  const me=await fetch('/api/v1/auth/me',{credentials:'same-origin'}).then(x=>x.json());
+  if(me.success) document.getElementById('tokenStat').textContent=me.data.token_balance;
   const el=document.getElementById('recentStories');
-  if(!stories.length){ el.textContent='No stories yet.'; return; }
-  el.innerHTML=stories.slice(0,5).map(s=>`<div class="border-b py-2"><a href="/stories/${s.id}" class="text-blue-600">${s.title}</a> <span class="text-sm text-gray-500">(${s.story_status})</span></div>`).join('');
+  if(!stories.length){ el.innerHTML='<div class="empty-state"><h3>No stories yet</h3><p>Create your first comic script to get started.</p><a href="/stories/new" class="btn btn-primary mt-3">Create story</a></div>'; return; }
+  el.innerHTML=stories.slice(0,6).map(s=>`
+    <a href="/stories/${s.id}" class="flex justify-between items-center py-3 border-b border-[var(--color-border)] hover:bg-[var(--color-bg)] px-2 rounded transition">
+      <div>
+        <div class="font-medium">${s.title}</div>
+        <div class="text-sm text-secondary">${(s.content||'').slice(0,80)}</div>
+      </div>
+      <span class="badge ${s.story_status==='COMPLETED'?'badge-success':'badge-warning'}">${s.story_status}</span>
+    </a>`).join('');
 }
 load();
 </script>

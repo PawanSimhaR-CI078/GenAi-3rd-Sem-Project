@@ -4,37 +4,47 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}TOLSTOY{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
-<body class="bg-gray-100 text-gray-900 min-h-screen flex">
-<aside class="w-60 bg-white shadow p-4 hidden md:block">
-  <div class="font-bold text-xl mb-4">TOLSTOY</div>
-  <nav class="space-y-2">
-    <a href="/dashboard" class="block hover:text-blue-600">Dashboard</a>
-    <a href="/stories/new" class="block hover:text-blue-600">Create Story</a>
-    <a href="/stories?status=EDITING" class="block hover:text-blue-600">Editing</a>
-    <a href="/stories?status=COMPLETED" class="block hover:text-blue-600">Completed</a>
-    <a href="/wallet" class="block hover:text-blue-600">Token Wallet</a>
-    <a href="/contact" class="block hover:text-blue-600">Contact Admin</a>
-    <a href="/profile" class="block hover:text-blue-600">Profile</a>
-    <a href="#" onclick="logout()" class="block text-red-600">Logout</a>
-  </nav>
-</aside>
-<main class="flex-1 p-6">
-  <header class="flex justify-between items-center mb-6 bg-white p-3 rounded shadow">
-    <div id="welcome" class="font-semibold">Welcome</div>
-    <div class="flex items-center space-x-4">
-      <span id="tokenBalance" class="font-bold">Tokens: -</span>
-      <span id="clock" class="text-sm text-gray-600"></span>
-      <span id="date" class="text-sm text-gray-600"></span>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard" class="brand" style="font-family:var(--font-heading);font-size:20px;font-weight:800;color:var(--color-primary);display:block;margin-bottom:var(--space-6);">TOLSTOY</a>
+    <nav class="space-y-1">
+      <a href="/dashboard" class="nav-link" data-nav="dashboard"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Dashboard</a>
+      <a href="/stories/new" class="nav-link" data-nav="create"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>Create Story</a>
+      <a href="/stories?status=EDITING" class="nav-link" data-nav="editing"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editing</a>
+      <a href="/stories?status=COMPLETED" class="nav-link" data-nav="completed"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Completed</a>
+      <a href="/wallet" class="nav-link" data-nav="wallet"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>Token Wallet</a>
+      <a href="/contact" class="nav-link" data-nav="contact"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>Contact Admin</a>
+      <a href="/profile" class="nav-link" data-nav="profile"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>Profile</a>
+    </nav>
+    <div style="margin-top:auto;padding-top:var(--space-6);">
+      <button class="nav-link w-full text-left" onclick="logout()"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>Logout</button>
     </div>
-  </header>
-  {% block content %}{% endblock %}
-</main>
+  </aside>
+  <div class="main-content">
+    <header class="topbar">
+      <button class="btn btn-ghost btn-sm mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">Menu</button>
+      <div id="welcome" class="font-semibold">Welcome</div>
+      <div class="flex items-center gap-4">
+        <span id="tokenBalance" class="badge badge-primary">Tokens: -</span>
+        <span id="clock" class="text-sm text-muted"></span>
+        <span id="date" class="text-sm text-muted"></span>
+      </div>
+    </header>
+    {% block content %}{% endblock %}
+  </div>
+</div>
+<div class="toast-container" id="toasts"></div>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script>
 function logout(){ fetch('/api/v1/auth/logout',{method:'POST',credentials:'same-origin'}).then(()=>location.href='/login'); }
+function showToast(msg,type='success'){ const c=document.getElementById('toasts'); const t=document.createElement('div'); t.className='toast '+type; t.textContent=msg; c.appendChild(t); setTimeout(()=>t.remove(),3500); }
 async function loadMe(){
   const r=await fetch('/api/v1/auth/me',{credentials:'same-origin'});
   const j=await r.json();
@@ -43,6 +53,9 @@ async function loadMe(){
 }
 function tick(){ const n=new Date(); document.getElementById('clock').textContent=n.toLocaleTimeString(); document.getElementById('date').textContent=n.toLocaleDateString(); }
 setInterval(tick,1000); tick(); loadMe();
+// active nav
+const path=location.pathname;
+document.querySelectorAll('.nav-link').forEach(l=>{ if(l.getAttribute('href')===path || (path.startsWith('/stories') && l.getAttribute('href').startsWith('/stories'))) l.classList.add('active'); });
 </script>
 {% block scripts %}{% endblock %}
 </body>

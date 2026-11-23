@@ -1,16 +1,27 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Stories{% endblock %}
+{% block title %}Stories — Admin{% endblock %}
 {% block heading %}Story Management{% endblock %}
 {% block content %}
-<div class="bg-white p-4 rounded shadow">
-  <table class="w-full text-sm" id="tbl"><thead><tr><th>ID</th><th>User</th><th>Title</th><th>Status</th><th>Gen</th></tr></thead><tbody></tbody></table>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>User</th><th>Title</th><th>Status</th><th>Generation</th><th>Tokens</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
 </div>
 <script>
 async function load(){
   const r=await fetch('/api/v1/admin/stories',{credentials:'same-origin'});
   const j=await r.json();
   if(!j.success) return;
-  document.querySelector('#tbl tbody').innerHTML=j.data.stories.map(s=>`<tr class="border-t"><td>${s.id}</td><td>${s.user_id}</td><td>${s.title}</td><td>${s.story_status}</td><td>${s.generation_status}</td></tr>`).join('');
+  document.getElementById('tbody').innerHTML=j.data.stories.map(s=>`
+    <tr>
+      <td>${s.id}</td><td>${s.user_id}</td><td>${s.title}</td>
+      <td><span class="badge ${s.story_status==='COMPLETED'?'badge-success':'badge-warning'}">${s.story_status}</span></td>
+      <td><span class="badge badge-muted">${s.generation_status}</span></td>
+      <td>${s.tokens_consumed}</td>
+    </tr>`).join('');
 }
 load();
 </script>

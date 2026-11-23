@@ -4,25 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}TOLSTOY{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen">
-<header class="bg-white shadow">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-    <a href="/" class="font-bold text-xl">TOLSTOY</a>
-    <nav class="space-x-4">
-      <a href="/" class="hover:underline">Home</a>
-      <a href="/login" class="hover:underline">Login</a>
-      <a href="/register" class="hover:underline">Register</a>
-      <a href="/admin/login" class="hover:underline">Admin</a>
-    </nav>
-  </div>
+<body>
+<header class="public-nav">
+  <a href="/" class="brand">TOLSTOY</a>
+  <nav class="flex items-center gap-2">
+    <a href="/" class="btn btn-ghost btn-sm">Home</a>
+    <a href="/login" class="btn btn-ghost btn-sm">Sign in</a>
+    <a href="/register" class="btn btn-primary btn-sm">Get started</a>
+  </nav>
 </header>
-<main class="max-w-6xl mx-auto px-4 py-6">
-  {% with messages = get_flashed_messages() %}{% if messages %}{% for m in messages %}<div class="bg-blue-100 p-2 mb-2 rounded">{{ m }}</div>{% endfor %}{% endif %}{% endwith %}
-  {% block content %}{% endblock %}
-</main>
+<main>{% block content %}{% endblock %}</main>
+<footer class="footer">© 2026 TOLSTOY — AI Story to Comic Script Generator</footer>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 {% block scripts %}{% endblock %}
 </body>

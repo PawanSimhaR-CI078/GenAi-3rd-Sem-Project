@@ -1,12 +1,18 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Database{% endblock %}
+{% block title %}Database — Admin{% endblock %}
 {% block heading %}Database Viewer{% endblock %}
 {% block content %}
-<div class="mb-3">
-  <select id="tbl" class="border p-2 rounded"><option>tolstoy_users</option><option>tolstoy_stories</option><option>tolstoy_system_settings</option></select>
-  <button onclick="load()" class="bg-blue-600 text-white px-3 py-2 rounded">Load</button>
+<div class="card mb-4">
+  <div class="flex gap-2 items-center">
+    <select id="tbl" class="form-select" style="max-width:260px;">
+      <option>tolstoy_users</option><option>tolstoy_stories</option><option>tolstoy_system_settings</option>
+    </select>
+    <button onclick="load()" class="btn btn-primary btn-sm">Load</button>
+  </div>
 </div>
-<div class="bg-white p-4 rounded shadow overflow-auto" id="out">Select a table.</div>
+<div class="card">
+  <div id="out" class="text-sm text-secondary">Select a table and click Load.</div>
+</div>
 <script>
 async function load(){
   const t=document.getElementById('tbl').value;
@@ -16,7 +22,7 @@ async function load(){
   const rows=j.data.rows;
   if(!rows.length){ document.getElementById('out').textContent='No rows.'; return; }
   const cols=Object.keys(rows[0]);
-  document.getElementById('out').innerHTML='<table class="text-xs"><thead><tr>'+cols.map(c=>'<th class="p-1">'+c+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>'<td class="p-1 border">'+(r[c]===null?'':String(r[c]).slice(0,60))+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+  document.getElementById('out').innerHTML='<div class="table-wrap"><table><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>'<td class="mono text-xs">'+(r[c]===null?'':String(r[c]).slice(0,80))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
 }
 </script>
 {% endblock %}

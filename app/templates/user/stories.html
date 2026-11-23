@@ -1,8 +1,19 @@
 {% extends "user/base_user.html" %}
-{% block title %}My Stories{% endblock %}
+{% block title %}My Stories — TOLSTOY{% endblock %}
 {% block content %}
-<h2 class="text-2xl font-bold mb-4">My Stories</h2>
-<div id="list">Loading...</div>
+<div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+  <div>
+    <h1 class="mb-1">My Stories</h1>
+    <p class="text-secondary">Manage your comic scripts.</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="/stories?status=EDITING" class="btn btn-secondary btn-sm">Editing</a>
+    <a href="/stories?status=COMPLETED" class="btn btn-secondary btn-sm">Completed</a>
+    <a href="/stories" class="btn btn-secondary btn-sm">All</a>
+    <a href="/stories/new" class="btn btn-primary btn-sm">New story</a>
+  </div>
+</div>
+<div id="list" class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="skeleton" style="height:120px;"></div></div>
 <script>
 async function load(){
   const params=new URLSearchParams(location.search);
@@ -10,13 +21,21 @@ async function load(){
   const url='/api/v1/stories'+(status?('?status='+status):'');
   const r=await fetch(url,{credentials:'same-origin'});
   const j=await r.json();
-  if(!j.success){ document.getElementById('list').textContent=j.message; return; }
+  const el=document.getElementById('list');
+  if(!j.success){ el.textContent=j.message; return; }
   const stories=j.data.stories;
-  if(!stories.length){ document.getElementById('list').textContent='No stories.'; return; }
-  document.getElementById('list').innerHTML=stories.map(s=>`
-    <div class="bg-white p-4 rounded shadow mb-3">
-      <div class="flex justify-between"><a href="/stories/${s.id}" class="font-bold text-blue-600">${s.title}</a><span class="text-sm">${s.story_status}</span></div>
-      <p class="text-sm text-gray-600 mt-1">${(s.content||'').slice(0,120)}</p>
+  if(!stories.length){ el.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><h3>No stories here</h3><p>Create a new story to get started.</p><a href="/stories/new" class="btn btn-primary mt-3">Create story</a></div>'; return; }
+  el.innerHTML=stories.map(s=>`
+    <div class="card">
+      <div class="flex justify-between items-start mb-2">
+        <h3 class="card-title">${s.title}</h3>
+        <span class="badge ${s.story_status==='COMPLETED'?'badge-success':'badge-warning'}">${s.story_status}</span>
+      </div>
+      <p class="text-sm text-secondary mb-3">${(s.content||'').slice(0,140)}</p>
+      <div class="flex gap-2">
+        <a href="/stories/${s.id}" class="btn btn-secondary btn-sm">Open</a>
+        <span class="text-xs text-muted self-center">${s.generation_status}</span>
+      </div>
     </div>`).join('');
 }
 load();
