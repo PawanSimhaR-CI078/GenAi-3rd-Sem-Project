@@ -28,7 +28,7 @@ def create_app(config_name=None):
     app.register_blueprint(stories_bp, url_prefix="/api/v1/stories")
     app.register_blueprint(wallet_bp, url_prefix="/api/v1/wallet")
     app.register_blueprint(admin_bp, url_prefix="/api/v1/admin")
-    app.register_blueprint(system_bp, url_prefix="/api/v1")
+    app.register_blueprint(system_bp, url_prefix="/api/v1/admin")
     app.register_blueprint(contact_bp, url_prefix="/api/v1/contact")
     app.register_blueprint(public_bp)
     app.register_blueprint(user_bp)
