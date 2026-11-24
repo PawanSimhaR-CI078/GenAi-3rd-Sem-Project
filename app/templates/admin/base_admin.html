@@ -13,8 +13,11 @@
 </head>
 <body>
 <div class="app-shell">
-  <aside class="sidebar" style="background:var(--color-text);color:#fff;border-right:none;">
-    <div style="font-family:var(--font-heading);font-size:20px;font-weight:800;color:#fff;margin-bottom:var(--space-6);">TOLSTOY <span style="font-size:12px;opacity:.6;">Admin</span></div>
+  <aside class="sidebar" id="sidebar" style="background:var(--color-text);color:#fff;border-right:none;">
+    <div class="sidebar-head" style="margin-bottom:var(--space-6);">
+      <div style="font-family:var(--font-heading);font-size:20px;font-weight:800;color:#fff;">TOLSTOY <span style="font-size:12px;opacity:.6;">Admin</span></div>
+      <button type="button" class="sidebar-close" data-sidebar-close aria-label="Close menu">×</button>
+    </div>
     <nav class="space-y-1">
       {% if can('analytics') %}<a href="/admin" class="nav-link {{ 'active' if request.path == '/admin' }}" style="color:#cbd5e1;">◎&nbsp; Analytics</a>{% endif %}
       {% if can('users_view') %}<a href="/admin/users" class="nav-link {{ 'active' if request.path == '/admin/users' }}" style="color:#cbd5e1;">♙&nbsp; User Editing</a>{% endif %}
@@ -29,8 +32,10 @@
       <button class="nav-link w-full text-left" style="color:#fca5a5;" onclick="logout()">↪&nbsp; Logout</button>
     </div>
   </aside>
+  <div class="sidebar-backdrop" data-sidebar-backdrop></div>
   <div class="main-content">
     <header class="topbar">
+      <button type="button" class="btn btn-ghost btn-sm mobile-toggle" data-sidebar-toggle aria-controls="sidebar" aria-expanded="false">Menu</button>
       <h1 class="text-lg font-semibold mb-0">{% block heading %}Admin{% endblock %}</h1>
       <div class="text-sm text-muted">{% if maintenance_on %}<span class="badge badge-error">OFFLINE</span>{% endif %} <span class="badge badge-primary">{{ session.get('role', 'ADMIN') }}</span></div>
     </header>

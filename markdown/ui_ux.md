@@ -86,12 +86,16 @@ Links are hidden when the role lacks the capability.
 - **System settings:** SUPER_ADMIN only; key/value list, maintenance toggle moved to System Control.
 - **System Control:** SUPER_ADMIN only. ONLINE/OFFLINE status card, affected-user count, password
   re-entry, typed confirmation, persistent offline badge in the topbar.
+- **Admin entry points:** public nav and landing Admin card link to `/admin/login`; an ADMIN/SUPER_ADMIN
+  signing in through `/login` lands on `/admin`. Their user sidebar also shows an Admin Panel link.
 
 ## 6. Responsive Behavior
 
-- Mobile: collapsible sidebar (hamburger), stacked forms, horizontal-scroll tables, touch-friendly buttons (min 44px).
+- Mobile: collapsible sidebar drawer (hamburger), backdrop, close button, Escape/outside-click close,
+  body scroll lock; stacked forms, horizontal-scroll tables, touch-friendly buttons (min 44px).
+  The same drawer pattern applies to user and admin layouts.
 - Tablet: collapsible or persistent narrow sidebar.
-- Desktop: persistent sidebar.
+- Desktop: persistent sidebar; mobile controls hidden.
 - Charts resize via Chart.js responsive option.
 
 ## 7. Consistency

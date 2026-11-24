@@ -24,3 +24,43 @@ window.fetch = async function (input, init) {
   }
   return _origFetch(input, init);
 };
+
+// Mobile sidebar drawer: one pattern for user and admin layouts.
+(function () {
+  function setupDrawer() {
+    const sidebar = document.getElementById('sidebar');
+    const toggle = document.querySelector('[data-sidebar-toggle]');
+    const backdrop = document.querySelector('[data-sidebar-backdrop]');
+    const closeButton = document.querySelector('[data-sidebar-close]');
+    if (!sidebar || !toggle || !backdrop) return;
+
+    function setOpen(open) {
+      sidebar.classList.toggle('open', open);
+      backdrop.classList.toggle('show', open);
+      document.body.classList.toggle('drawer-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      if (open && closeButton) closeButton.focus();
+      if (!open && window.innerWidth <= 768) toggle.focus();
+    }
+
+    toggle.addEventListener('click', function () {
+      setOpen(!sidebar.classList.contains('open'));
+    });
+    if (closeButton) closeButton.addEventListener('click', function () { setOpen(false); });
+    backdrop.addEventListener('click', function () { setOpen(false); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sidebar.classList.contains('open')) setOpen(false);
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 768 && sidebar.classList.contains('open')) setOpen(false);
+    });
+    sidebar.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        if (window.innerWidth <= 768) setOpen(false);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupDrawer);
+  else setupDrawer();
+})();
