@@ -41,6 +41,12 @@ def create_app(config_name=None):
     csrf.init_app(app)
     app.teardown_appcontext(close_db)
 
+    @app.after_request
+    def no_cache_admin(response):
+        if request.path.startswith("/admin"):
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        return response
+
     @app.context_processor
     def admin_context():
         if not request.path.startswith("/admin"):

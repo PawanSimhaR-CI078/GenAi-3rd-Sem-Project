@@ -32,7 +32,7 @@
   <div class="main-content">
     <header class="topbar">
       <h1 class="text-lg font-semibold mb-0">{% block heading %}Admin{% endblock %}</h1>
-      <div class="text-sm text-muted">{% if maintenance_on %}<span class="badge badge-error">OFFLINE</span>{% else %}Administrator{% endif %}</div>
+      <div class="text-sm text-muted">{% if maintenance_on %}<span class="badge badge-error">OFFLINE</span>{% endif %} <span class="badge badge-primary">{{ session.get('role', 'ADMIN') }}</span></div>
     </header>
     {% block content %}{% endblock %}
   </div>
