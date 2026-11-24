@@ -112,3 +112,45 @@ def top_users_by_stories(limit=5):
         """SELECT u.username, COUNT(s.id) AS c FROM tolstoy_users u
            LEFT JOIN tolstoy_stories s ON s.user_id=u.id AND s.is_deleted=0
            GROUP BY u.id ORDER BY c DESC LIMIT ?""", (limit,))
+
+
+def count_deleted():
+    r = query_db("SELECT COUNT(*) AS c FROM tolstoy_stories WHERE is_deleted=1", one=True)
+    return r["c"] if r else 0
+
+
+def generation_status_counts():
+    return {r["generation_status"]: r["c"] for r in query_db(
+        "SELECT generation_status, COUNT(*) AS c FROM tolstoy_stories WHERE is_deleted=0 GROUP BY generation_status")}
+
+
+def trend_by_day(days, where="1=1"):
+    return query_db(
+        f"""SELECT substr(created_at,1,10) AS d, COUNT(*) AS c FROM tolstoy_stories
+            WHERE is_deleted=0 AND date(created_at) >= date('now', ?) AND {where}
+            GROUP BY d ORDER BY d""", (f"-{days} days",))
+
+
+def tokens_trend(days):
+    return query_db(
+        """SELECT substr(created_at,1,10) AS d, SUM(tokens_consumed) AS c FROM tolstoy_stories
+           WHERE date(created_at) >= date('now', ?) GROUP BY d ORDER BY d""",
+        (f"-{days} days",),
+    )
+
+
+def average_stories_per_user():
+    r = query_db(
+        """SELECT COALESCE(AVG(c),0) AS a FROM (
+             SELECT COUNT(s.id) AS c FROM tolstoy_users u
+             LEFT JOIN tolstoy_stories s ON s.user_id=u.id AND s.is_deleted=0
+             GROUP BY u.id)""", one=True)
+    return round(r["a"], 2) if r else 0
+
+
+def recent_stories(limit=5):
+    return query_db(
+        """SELECT s.id, s.title, s.story_status, s.generation_status, s.created_at, u.username
+           FROM tolstoy_stories s JOIN tolstoy_users u ON u.id=s.user_id
+           WHERE s.is_deleted=0 ORDER BY s.id DESC LIMIT ?""", (limit,),
+    )

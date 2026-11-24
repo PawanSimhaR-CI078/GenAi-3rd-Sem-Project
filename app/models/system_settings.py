@@ -42,6 +42,11 @@ def set_setting(key, value, value_type="string", description=None, updated_by=No
         )
 
 
+def ensure_setting(key, value, value_type="string", description=None, updated_by=None):
+    if not get_setting(key):
+        set_setting(key, value, value_type, description, updated_by)
+
+
 def list_settings():
     return query_db("SELECT * FROM tolstoy_system_settings ORDER BY setting_key")
 

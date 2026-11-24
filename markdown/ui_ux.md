@@ -67,18 +67,23 @@ Display name, password change (future). Keep minimal.
 
 ## 5. Admin Area
 
-- **Dashboard:** summary cards + ~5–6 charts:
-  1. Total registered users (doughnut: active vs inactive).
-  2. Stories by status (bar: editing vs completed).
-  3. Story creation trend (line: per day/week).
-  4. Tokens consumed over time (line).
-  5. Gemini input vs output tokens (bar).
-  6. Top users by story count (bar).
-- **User management:** table, search/filter, edit, activate/deactivate, adjust tokens.
+Sidebar sections: Analytics, User Editing, Role Access, Live Database, Stories, Settings, System Control.
+Links are hidden when the role lacks the capability.
+
+- **Analytics:** grouped KPI cards (users, stories, tokens), 9 charts (user growth, users by role,
+  token balance distribution, stories by status, generation outcomes, stories per day, tokens per day,
+  top users, Gemini usage), complete database overview (table counts, size, on-demand integrity check),
+  recent signups and recent stories. Range selector: 7 / 30 / 90 / all.
+- **User Editing:** searchable/filterable table with a side drawer for username, display name, phone,
+  active state and tokens. Token control is “Add tokens” only, with a live preview of the new balance.
+- **Role Access:** permission matrix (capabilities × roles, SUPER_ADMIN locked) plus user role assignment
+  with password re-entry and guardrails.
+- **Live Database:** table switcher, row search, pagination, optional 5-second auto-refresh, row detail,
+  hidden password hashes and masked secrets. Read-only.
 - **Story management:** table with filters, view, delete/archive.
-- **Database viewer:** paginated tables for the three approved tables; password hashes and secrets masked.
-- **System settings:** edit key/value with type validation.
-- **Maintenance mode:** toggle with password re-entry.
+- **System settings:** key/value list; maintenance toggle moved to System Control.
+- **System Control:** ONLINE/OFFLINE status card, affected-user count, password re-entry, typed
+  confirmation, persistent offline badge in the topbar.
 
 ## 6. Responsive Behavior
 

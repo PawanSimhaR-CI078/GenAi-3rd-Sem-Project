@@ -1,28 +1,51 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Database — Admin{% endblock %}
-{% block heading %}Database Viewer{% endblock %}
+{% block title %}Live Database — Admin{% endblock %}
+{% block heading %}Live Database{% endblock %}
 {% block content %}
 <div class="card mb-4">
-  <div class="flex gap-2 items-center">
-    <select id="tbl" class="form-select" style="max-width:260px;">
-      <option>tolstoy_users</option><option>tolstoy_stories</option><option>tolstoy_system_settings</option>
-    </select>
-    <button onclick="load()" class="btn btn-primary btn-sm">Load</button>
+  <div class="flex gap-2 items-center flex-wrap">
+    <select id="tbl" class="form-select" style="max-width:260px;"><option>tolstoy_users</option><option>tolstoy_stories</option><option>tolstoy_system_settings</option></select>
+    <input id="q" class="form-input" style="max-width:220px;" placeholder="Search rows">
+    <select id="per" class="form-select" style="max-width:90px;"><option>25</option><option>50</option><option>100</option></select>
+    <label class="flex items-center gap-1 text-sm"><input type="checkbox" id="live"> Auto-refresh</label>
+    <span id="meta" class="text-sm text-muted"></span>
+    <button class="btn btn-secondary btn-sm" onclick="load()">Refresh</button>
   </div>
 </div>
 <div class="card">
-  <div id="out" class="text-sm text-secondary">Select a table and click Load.</div>
+  <div class="table-wrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+  <div class="flex gap-2 mt-3 items-center">
+    <button class="btn btn-secondary btn-sm" onclick="go(Math.max(1,P-1))">Prev</button>
+    <span id="pageno" class="text-sm"></span>
+    <button class="btn btn-secondary btn-sm" onclick="go(P+1)">Next</button>
+  </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
 <script>
+let P=1, timer=null;
 async function load(){
-  const t=document.getElementById('tbl').value;
-  const r=await fetch('/api/v1/admin/database/'+t,{credentials:'same-origin'});
-  const j=await r.json();
-  if(!j.success){ document.getElementById('out').textContent=j.message; return; }
-  const rows=j.data.rows;
-  if(!rows.length){ document.getElementById('out').textContent='No rows.'; return; }
-  const cols=Object.keys(rows[0]);
-  document.getElementById('out').innerHTML='<div class="table-wrap"><table><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>'<td class="mono text-xs">'+(r[c]===null?'':String(r[c]).slice(0,80))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  const t=document.getElementById('tbl').value, q=document.getElementById('q').value, per=document.getElementById('per').value;
+  const j=await (await fetch(`/api/v1/admin/database/${t}?page=${P}&per_page=${per}&q=${encodeURIComponent(q)}`,{credentials:'same-origin'})).json();
+  if(!j.success){ document.getElementById('meta').textContent=j.message; return; }
+  const d=j.data;
+  document.getElementById('thead').innerHTML='<tr>'+d.columns.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr>';
+  document.getElementById('tbody').innerHTML=d.rows.map(r=>'<tr>'+d.columns.map(c=>`<td class="mono text-xs" title="${esc(r[c])}">${esc(r[c]===null?'':String(r[c]).slice(0,90))}</td>`).join('')+'</tr>').join('')||`<tr><td colspan="${d.columns.length}" class="text-center text-muted">No rows</td></tr>`;
+  document.getElementById('meta').textContent=d.total+' rows · '+(d.size_bytes||'')+'';
+  document.getElementById('pageno').textContent='Page '+d.page+' of '+d.pages;
 }
+function go(n){ P=Math.max(1,n); load(); }
+document.getElementById('tbl').addEventListener('change',()=>{P=1;load();});
+document.getElementById('per').addEventListener('change',()=>{P=1;load();});
+document.getElementById('q').addEventListener('input',()=>{P=1;load();});
+document.getElementById('live').addEventListener('change',e=>{
+  if(e.target.checked){ timer=setInterval(()=>{ if(!document.hidden) load(); },5000); showToast('Live refresh on'); }
+  else { clearInterval(timer); timer=null; }
+});
+(async()=>{ const j=await (await fetch('/api/v1/admin/database/meta',{credentials:'same-origin'})).json();
+  if(j.success) document.getElementById('meta').textContent=(j.data.size_bytes/1048576).toFixed(2)+' MB · '+Object.entries(j.data.counts).map(([k,v])=>k.split('_')[1]+':'+v).join(' · ');
+})();
+load();
 </script>
 {% endblock %}

@@ -1,33 +1,109 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Analytics — Admin{% endblock %}
 {% block heading %}Analytics Dashboard{% endblock %}
 {% block content %}
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="cards"></div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <div class="card"><h3 class="card-title mb-3">Users by status</h3><canvas id="c1"></canvas></div>
-  <div class="card"><h3 class="card-title mb-3">Stories by status</h3><canvas id="c2"></canvas></div>
-  <div class="card"><h3 class="card-title mb-3">Stories per day</h3><canvas id="c3"></canvas></div>
-  <div class="card"><h3 class="card-title mb-3">Gemini usage</h3><canvas id="c4"></canvas></div>
+<div class="flex items-center justify-between mb-4">
+  <div class="text-sm text-muted" id="updated">Loading…</div>
+  <div class="flex gap-2">
+    <select id="range" class="form-select" style="max-width:130px;">
+      <option value="7">7 days</option><option value="30" selected>30 days</option>
+      <option value="90">90 days</option><option value="36500">All time</option>
+    </select>
+    <button class="btn btn-secondary btn-sm" onclick="loadAll()">Refresh</button>
+  </div>
 </div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4" id="kpis"></div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="kpis2"></div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <div class="card"><h3 class="card-title mb-3">User growth</h3><canvas id="c1"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Users by role</h3><canvas id="c2"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Token balance distribution</h3><canvas id="c3"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Stories by status</h3><canvas id="c4"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Generation outcomes</h3><canvas id="c5"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Stories created per day</h3><canvas id="c6"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Tokens consumed per day</h3><canvas id="c7"></canvas></div>
+  <div class="card"><h3 class="card-title mb-3">Top users by stories</h3><canvas id="c8"></canvas></div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <div class="card md:col-span-2">
+    <div class="flex justify-between items-center mb-3">
+      <h3 class="card-title mb-0">Complete database overview</h3>
+      <button class="btn btn-ghost btn-sm" onclick="runIntegrity()">Run integrity check</button>
+    </div>
+    <div id="dbhealth" class="text-sm"></div>
+    <div id="integrity" class="text-sm mt-2"></div>
+  </div>
+  <div class="card">
+    <h3 class="card-title mb-3">Gemini usage</h3><canvas id="c9"></canvas>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="card"><h3 class="card-title mb-3">Recent signups</h3><div id="recentUsers" class="text-sm"></div></div>
+  <div class="card"><h3 class="card-title mb-3">Recent stories</h3><div id="recentStories" class="text-sm"></div></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script>
-async function loadSummary(){
-  const r=await fetch('/api/v1/admin/analytics/summary',{credentials:'same-origin'});
-  const j=await r.json();
+const charts = {};
+const palette = ['#5546E8','#16A36A','#E9A23B','#DC4C4C','#3984E8','#9299AA','#8B5CF6','#0EA5E9'];
+function range(){ return document.getElementById('range').value; }
+function card(label,value,sub){ return `<div class="stat-card"><div class="stat-label">${esc(label)}</div><div class="stat-value">${esc(value)}</div>${sub?`<div class="text-xs text-muted">${esc(sub)}</div>`:''}</div>`; }
+async function get(url){ const r=await fetch(url,{credentials:'same-origin'}); return r.json(); }
+async function loadAll(){
+  document.getElementById('updated').textContent='Refreshing…';
+  const [s,h,a]=await Promise.all([
+    get('/api/v1/admin/analytics/summary?range='+range()),
+    get('/api/v1/admin/analytics/db-health'),
+    get('/api/v1/admin/analytics/recent'),
+  ]);
+  if(s.success){
+    const d=s.data;
+    document.getElementById('kpis').innerHTML=[
+      card('Total users',d.users.total,`${d.users.active} active`),
+      card('Total stories',d.stories.total,`${d.stories.new_in_range} new`),
+      card('Tokens in circulation',d.tokens.in_circulation,'internal credits'),
+      card('Generation success',d.stories.success_rate+'%',`${d.stories.by_generation.succeeded||0} succeeded`),
+    ].join('');
+    document.getElementById('kpis2').innerHTML=[
+      card('New users',d.users.new_in_range,'selected range'),
+      card('Editing',d.stories.editing,'stories'),
+      card('Completed',d.stories.completed,'stories'),
+      card('Avg tokens / user',d.tokens.average_balance,`${d.tokens.low_balance_users} low balance`),
+    ].join('');
+  }
+  if(h.success){
+    const t=h.data.tables, mb=(h.data.size_bytes/1048576).toFixed(2);
+    document.getElementById('dbhealth').innerHTML=
+      `<div class="grid grid-cols-3 gap-3 mb-3">${Object.entries(t).map(([k,v])=>`<div class="border rounded p-2"><div class="text-muted text-xs">${esc(k)}</div><div class="font-semibold">${v} rows</div></div>`).join('')}</div>`+
+      `<div class="text-secondary">Database size: <strong>${mb} MB</strong></div>`+
+      `<div class="text-secondary">Last writes: ${Object.entries(h.data.last_updated).map(([k,v])=>esc(k.split('_')[1])+' '+(v?esc(v):'—')).join(' · ')}</div>`;
+  }
+  if(a.success){
+    document.getElementById('recentUsers').innerHTML=a.data.users.map(u=>`<div class="flex justify-between py-1 border-b"><span>${esc(u.username)} <span class="text-muted">${esc(u.role)}</span></span><span class="text-muted">${esc(u.created_at.slice(0,10))}</span></div>`).join('')||'<div class="text-muted">No users</div>';
+    document.getElementById('recentStories').innerHTML=a.data.stories.map(s=>`<div class="flex justify-between py-1 border-b"><span>${esc(s.title)} <span class="text-muted">${esc(s.username)}</span></span><span class="badge badge-${s.generation_status==='succeeded'?'success':'primary'}">${esc(s.generation_status)}</span></div>`).join('')||'<div class="text-muted">No stories</div>';
+  }
+  const defs=[['c1','users_growth','line'],['c2','users_role','doughnut'],['c3','token_distribution','bar'],['c4','stories_status','doughnut'],['c5','generation_status','bar'],['c6','stories_per_day','line'],['c7','tokens_per_day','line'],['c8','top_users','bar'],['c9','gemini_usage','bar']];
+  await Promise.all(defs.map(async ([id,key,type])=>{
+    const j=await get('/api/v1/admin/analytics/charts?chart='+key+'&range='+range());
+    if(!j.success) return;
+    if(charts[id]) charts[id].destroy();
+    charts[id]=new Chart(document.getElementById(id),{type,data:{labels:j.data.labels,datasets:[{label:key,data:j.data.data,backgroundColor:type==='line'?'#5546E8':palette,borderColor:'#5546E8',fill:false,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type!=='line',position:'bottom'}}}});
+  }));
+  document.getElementById('updated').textContent='Updated '+new Date().toLocaleTimeString();
+}
+async function runIntegrity(){
+  document.getElementById('integrity').textContent='Checking…';
+  const j=await get('/api/v1/admin/analytics/integrity');
   if(!j.success) return;
   const d=j.data;
-  const labels={'total_users':'Total users','active_users':'Active users','total_stories':'Total stories','editing_stories':'Editing','completed_stories':'Completed','tokens_consumed':'Tokens consumed','gemini_input_tokens':'Gemini input','gemini_output_tokens':'Gemini output','generation_succeeded':'Generated','generation_failed':'Failed'};
-  document.getElementById('cards').innerHTML=Object.entries(d).map(([k,v])=>`<div class="stat-card"><div class="stat-label">${labels[k]||k}</div><div class="stat-value">${v}</div></div>`).join('');
+  document.getElementById('integrity').innerHTML=`<span class="badge badge-${d.integrity==='ok'&&d.foreign_key_violations===0?'success':'error'}">${esc(d.integrity)}</span> · FK violations: ${d.foreign_key_violations}`;
 }
-async function loadChart(id,key,type){
-  const r=await fetch('/api/v1/admin/analytics/charts?chart='+key,{credentials:'same-origin'});
-  const j=await r.json();
-  if(!j.success) return;
-  new Chart(document.getElementById(id),{type:type,data:{labels:j.data.labels,datasets:[{label:key,data:j.data.data,backgroundColor:['#5546E8','#16A36A','#E9A23B','#DC4C4C','#3984E8','#9299AA']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
-}
-loadSummary();
-loadChart('c1','users_status','doughnut');
-loadChart('c2','stories_status','bar');
-loadChart('c3','stories_per_day','line');
-loadChart('c4','gemini_usage','bar');
+document.getElementById('range').addEventListener('change',loadAll);
+loadAll();
 </script>
 {% endblock %}

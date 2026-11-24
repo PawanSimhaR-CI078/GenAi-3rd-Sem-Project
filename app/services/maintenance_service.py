@@ -1,5 +1,5 @@
-from app.models.system_settings import set_setting, maintenance_enabled
-from app.models.user import verify_password, get_user_by_id
+from app.models.system_settings import set_setting, get_setting, maintenance_enabled
+from app.models.user import verify_password, get_user_by_id, count_active_users
 
 
 def toggle(enabled, admin_id, password):
@@ -12,3 +12,17 @@ def toggle(enabled, admin_id, password):
 
 def is_enabled():
     return maintenance_enabled()
+
+
+def status():
+    row = get_setting("maintenance_mode")
+    actor = None
+    if row and row["updated_by"]:
+        u = get_user_by_id(row["updated_by"])
+        actor = u["username"] if u else None
+    return {
+        "enabled": is_enabled(),
+        "updated_at": row["updated_at"] if row else None,
+        "updated_by": actor,
+        "affected_users": count_active_users(),
+    }

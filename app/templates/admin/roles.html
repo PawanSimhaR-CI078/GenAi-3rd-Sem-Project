@@ -1,0 +1,73 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Role Access — Admin{% endblock %}
+{% block heading %}Role Access{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <h3 class="card-title mb-1">Permission matrix</h3>
+  <p class="text-sm text-secondary mb-3">Changes apply on the next request. SUPER_ADMIN always keeps full access. You cannot revoke your own role-management access.</p>
+  <div class="table-wrap">
+    <table class="matrix">
+      <thead><tr><th>Capability</th><th>USER</th><th>ADMIN</th><th>SUPER_ADMIN</th></tr></thead>
+      <tbody id="matrixBody"></tbody>
+    </table>
+  </div>
+  <button class="btn btn-primary btn-sm mt-3" id="saveMatrix" onclick="saveMatrix()" style="display:none;">Save permissions</button>
+</div>
+
+<div class="card">
+  <h3 class="card-title mb-3">Assign roles</h3>
+  <input id="search" class="form-input mb-3" style="max-width:260px;" placeholder="Search users">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Username</th><th>Current role</th><th>New role</th><th>Admin password</th><th></th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div id="roleMsg" class="mt-2 text-sm"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let matrix=null, editable=false, caps={};
+const roleKeys=['USER','ADMIN','SUPER_ADMIN'];
+async function loadMatrix(){
+  const j=await (await fetch('/api/v1/admin/roles/permissions',{credentials:'same-origin'})).json();
+  if(!j.success) return;
+  matrix=j.data.permissions; caps=j.data.capabilities; editable=j.data.editable;
+  const rows=Object.entries(caps).map(([key,label])=>`<tr><td>${esc(label)}</td>${roleKeys.map(r=>{
+    if(r==='SUPER_ADMIN') return '<td class="text-center">🔒 Always on</td>';
+    const checked=(matrix[r]||[]).includes(key)?'checked':'';
+    return `<td class="text-center"><input type="checkbox" data-cap="${key}" data-role="${r}" ${checked} ${editable?'':'disabled'}></td>`;
+  }).join('')}</tr>`).join('');
+  document.getElementById('matrixBody').innerHTML=rows;
+  document.getElementById('saveMatrix').style.display=editable?'inline-block':'none';
+}
+async function saveMatrix(){
+  const out={USER:[],ADMIN:[],SUPER_ADMIN:['*']};
+  document.querySelectorAll('#matrixBody input[type=checkbox]').forEach(el=>{if(el.checked)out[el.dataset.role].push(el.dataset.cap);});
+  const r=await fetch('/api/v1/admin/roles/permissions',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({permissions:out}),credentials:'same-origin'});
+  const j=await r.json(); showToast(j.message,j.success?'success':'error'); loadMatrix();
+}
+async function load(){
+  const s=document.getElementById('search').value;
+  const j=await (await fetch('/api/v1/admin/users?search='+encodeURIComponent(s),{credentials:'same-origin'})).json();
+  if(!j.success) return;
+  document.getElementById('tbody').innerHTML=j.data.users.map(u=>`<tr>
+    <td>${u.id}</td><td>${esc(u.username)}</td><td><span class="badge badge-primary">${esc(u.role)}</span></td>
+    <td><select id="role-${u.id}" class="form-select"><option>USER</option><option>ADMIN</option><option>SUPER_ADMIN</option></select></td>
+    <td><input id="pw-${u.id}" type="password" class="form-input" placeholder="••••••••"></td>
+    <td><button class="btn btn-primary btn-sm" onclick="changeRole(${u.id})">Apply</button></td></tr>`).join('');
+}
+async function changeRole(id){
+  const role=document.getElementById('role-'+id).value;
+  const password=document.getElementById('pw-'+id).value;
+  const r=await fetch('/api/v1/admin/users/'+id+'/role',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({role,password}),credentials:'same-origin'});
+  const j=await r.json();
+  const m=document.getElementById('roleMsg'); m.textContent=j.message; m.className='mt-2 text-sm '+(j.success?'text-[var(--color-success)]':'form-error');
+  if(j.success){ load(); loadMatrix(); }
+}
+document.getElementById('search').addEventListener('input',load);
+loadMatrix(); load();
+</script>
+{% endblock %}

@@ -82,7 +82,9 @@ def update_token_balance(uid, new_balance, updated_by):
 
 
 def adjust_tokens(uid, delta, updated_by):
-    # atomic conditional
+    # atomic conditional; admin adjustments are increases only
+    if delta <= 0:
+        return False
     db = get_db()
     cur = db.execute(
         "UPDATE tolstoy_users SET token_balance = token_balance + ?, updated_by=?, updated_at=? WHERE id=? AND token_balance + ? >= 0",
@@ -139,3 +141,48 @@ def count_active_users():
 
 def get_all_users_for_analytics():
     return query_db("SELECT id, role, is_active, created_at FROM tolstoy_users")
+
+
+def count_by_role(role):
+    r = query_db("SELECT COUNT(*) AS c FROM tolstoy_users WHERE role=?", (role,), one=True)
+    return r["c"] if r else 0
+
+
+def role_counts():
+    return {r["role"]: r["c"] for r in query_db("SELECT role, COUNT(*) AS c FROM tolstoy_users GROUP BY role")}
+
+
+def registration_trend(days):
+    return query_db(
+        """SELECT substr(created_at,1,10) AS d, COUNT(*) AS c FROM tolstoy_users
+           WHERE date(created_at) >= date('now', ?) GROUP BY d ORDER BY d""",
+        (f"-{days} days",),
+    )
+
+
+def token_totals():
+    r = query_db(
+        """SELECT COALESCE(SUM(token_balance),0) AS total,
+                  COALESCE(AVG(token_balance),0) AS average,
+                  COALESCE(SUM(CASE WHEN token_balance <= 2 THEN 1 ELSE 0 END),0) AS low
+           FROM tolstoy_users""", one=True)
+    return {"total": r["total"], "average": round(r["average"], 2), "low": r["low"]}
+
+
+def token_balance_buckets():
+    rows = query_db(
+        """SELECT CASE
+             WHEN token_balance = 0 THEN '0'
+             WHEN token_balance BETWEEN 1 AND 5 THEN '1-5'
+             WHEN token_balance BETWEEN 6 AND 20 THEN '6-20'
+             ELSE '21+' END AS bucket, COUNT(*) AS c
+           FROM tolstoy_users GROUP BY bucket ORDER BY MIN(token_balance)"""
+    )
+    return [{"label": r["bucket"], "count": r["c"]} for r in rows]
+
+
+def recent_users(limit=5):
+    return query_db(
+        "SELECT id, username, role, is_active, token_balance, created_at FROM tolstoy_users ORDER BY id DESC LIMIT ?",
+        (limit,),
+    )

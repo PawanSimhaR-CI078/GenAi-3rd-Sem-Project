@@ -1,8 +1,35 @@
 import os
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request, redirect, url_for
 from app.config import get_config
 from app.extensions import csrf
 from app.db import close_db, init_db
+
+_MAINTENANCE_ALLOW = {
+    "/maintenance", "/admin/login", "/api/v1/auth/admin/login",
+    "/api/v1/auth/logout", "/api/v1/auth/csrf", "/api/v1/auth/me",
+    "/favicon.ico",
+}
+
+
+def _global_guards():
+    from app.security import sync_session_role
+    from app.services.maintenance_service import is_enabled
+    sync_session_role()
+    if not is_enabled():
+        return None
+    p = request.path
+    allowed = (
+        p.startswith("/static/")
+        or p == "/admin"
+        or p.startswith("/admin/")
+        or p.startswith("/api/v1/admin/")
+        or p in _MAINTENANCE_ALLOW
+    )
+    if allowed:
+        return None
+    if p.startswith("/api/"):
+        return jsonify({"success": False, "message": "System is offline for maintenance", "error": {"code": "MAINTENANCE"}}), 503
+    return redirect(url_for("public.maintenance_page"))
 
 
 def create_app(config_name=None):
@@ -10,10 +37,18 @@ def create_app(config_name=None):
     cfg = get_config(config_name)
     app.config.from_object(cfg)
 
+    app.before_request(_global_guards)
     csrf.init_app(app)
     app.teardown_appcontext(close_db)
 
-    # blueprints
+    @app.context_processor
+    def admin_context():
+        if not request.path.startswith("/admin"):
+            return {}
+        from app.security import can, ADMIN_CAPABILITIES
+        from app.services.maintenance_service import is_enabled
+        return {"can": can, "admin_capabilities": ADMIN_CAPABILITIES, "maintenance_on": is_enabled()}
+
     from app.routes.api.auth import bp as auth_bp
     from app.routes.api.stories import bp as stories_bp
     from app.routes.api.wallet import bp as wallet_bp
@@ -34,7 +69,6 @@ def create_app(config_name=None):
     app.register_blueprint(user_bp)
     app.register_blueprint(admin_pages_bp)
 
-    # error handlers
     @app.errorhandler(400)
     def e400(e):
         if _is_api():
@@ -65,7 +99,6 @@ def create_app(config_name=None):
             return jsonify({"success": False, "message": "Server error", "error": {"code": "SERVER_ERROR"}}), 500
         return render_template("errors/500.html"), 500
 
-    # init db on first run if not exists
     db_path = app.config["DATABASE_PATH"]
     if db_path == ":memory:":
         init_db(app)
@@ -74,7 +107,6 @@ def create_app(config_name=None):
         if not os.path.exists(full):
             init_db(app)
 
-    # seed system settings + admin accounts (only if empty)
     with app.app_context():
         from app.services.bootstrap import bootstrap
         bootstrap()
@@ -83,5 +115,4 @@ def create_app(config_name=None):
 
 
 def _is_api():
-    from flask import request
     return request.path.startswith("/api/")

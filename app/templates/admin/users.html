@@ -1,48 +1,99 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Users — Admin{% endblock %}
-{% block heading %}User Management{% endblock %}
+{% block title %}User Editing — Admin{% endblock %}
+{% block heading %}User Editing{% endblock %}
 {% block content %}
-<div class="card">
-  <div class="card-header">
-    <h2 class="card-title">Users</h2>
-    <input id="search" class="form-input" style="max-width:240px;" placeholder="Search username">
+<div class="card mb-4">
+  <div class="flex gap-2 items-center flex-wrap">
+    <input id="search" class="form-input" style="max-width:260px;" placeholder="Search username">
+    <select id="role" class="form-select" style="max-width:160px;"><option value="">All roles</option><option>USER</option><option>ADMIN</option><option>SUPER_ADMIN</option></select>
+    <select id="active" class="form-select" style="max-width:150px;"><option value="">Any status</option><option value="true">Active</option><option value="false">Inactive</option></select>
+    <span id="total" class="text-sm text-muted"></span>
   </div>
+</div>
+<div class="card">
   <div class="table-wrap">
     <table>
-      <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Active</th><th>Tokens</th><th>Actions</th></tr></thead>
+      <thead><tr><th>ID</th><th>Username</th><th>Display name</th><th>Role</th><th>Status</th><th>Tokens</th><th>Joined</th><th>Actions</th></tr></thead>
       <tbody id="tbody"></tbody>
     </table>
   </div>
+  <div class="flex gap-2 mt-3 items-center">
+    <button class="btn btn-secondary btn-sm" onclick="page(Math.max(1,P-1))">Prev</button>
+    <span id="pageno" class="text-sm"></span>
+    <button class="btn btn-secondary btn-sm" onclick="page(P+1)">Next</button>
+  </div>
 </div>
+
+<div class="drawer" id="drawer">
+  <div class="drawer-head"><h3 class="mb-0">Edit user <span id="dId" class="text-muted"></span></h3><button class="btn btn-ghost btn-sm" onclick="closeDrawer()">✕</button></div>
+  <div class="drawer-body">
+    <label class="field-label">Username</label><input id="fUsername" class="form-input mb-3">
+    <label class="field-label">Display name</label><input id="fDisplay" class="form-input mb-3">
+    <label class="field-label">Phone</label><input id="fPhone" class="form-input mb-3">
+    <label class="field-label">Active</label><select id="fActive" class="form-select mb-3"><option value="true">Active</option><option value="false">Inactive</option></select>
+    <div class="card mb-3" style="box-shadow:none;background:var(--color-bg-secondary);">
+      <h4 class="mb-2">Tokens</h4>
+      <div class="text-sm mb-2">Current balance: <strong id="fBalance">0</strong></div>
+      <label class="field-label">Add tokens (increase only)</label>
+      <input id="fIncrease" type="number" min="1" step="1" class="form-input" placeholder="e.g. 5">
+      <div class="text-xs text-muted mt-1">New balance: <strong id="preview">0</strong></div>
+    </div>
+    <div id="dMeta" class="text-xs text-muted mb-3"></div>
+    <button class="btn btn-primary w-full" onclick="saveUser()">Save changes</button>
+  </div>
+</div>
+<div class="drawer-backdrop" id="backdrop" onclick="closeDrawer()"></div>
+{% endblock %}
+
+{% block scripts %}
 <script>
-async function load(q=''){
-  const r=await fetch('/api/v1/admin/users'+(q?'?search='+encodeURIComponent(q):''),{credentials:'same-origin'});
-  const j=await r.json();
+let P=1, current=null;
+function q(){ const p=new URLSearchParams(); const s=document.getElementById('search').value; const r=document.getElementById('role').value; const a=document.getElementById('active').value;
+  if(s)p.set('search',s); if(r)p.set('role',r); if(a)p.set('is_active',a); p.set('page',P); return p.toString(); }
+async function load(){
+  const j=await (await fetch('/api/v1/admin/users?'+q(),{credentials:'same-origin'})).json();
   if(!j.success) return;
+  document.getElementById('total').textContent=j.data.total+' users';
+  document.getElementById('pageno').textContent='Page '+j.data.page;
   document.getElementById('tbody').innerHTML=j.data.users.map(u=>`
-    <tr>
-      <td>${u.id}</td>
-      <td>${u.username}</td>
-      <td><span class="badge badge-primary">${u.role}</span></td>
-      <td>${u.is_active?'<span class="badge badge-success">Active</span>':'<span class="badge badge-error">Inactive</span>'}</td>
-      <td>${u.token_balance}</td>
-      <td>
-        <button class="btn btn-ghost btn-sm" onclick="adjustTokens(${u.id})">Adjust tokens</button>
-        <button class="btn btn-ghost btn-sm" onclick="toggleActive(${u.id},${u.is_active})">${u.is_active?'Deactivate':'Activate'}</button>
-      </td>
-    </tr>`).join('');
+    <tr><td>${u.id}</td><td><strong>${esc(u.username)}</strong></td><td>${esc(u.display_name||'—')}</td>
+    <td><span class="badge badge-primary">${esc(u.role)}</span></td>
+    <td>${u.is_active?'<span class="badge badge-success">Active</span>':'<span class="badge badge-error">Inactive</span>'}</td>
+    <td>${u.token_balance}</td><td class="text-xs">${esc(u.created_at.slice(0,10))}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick='openDrawer(${JSON.stringify(u).replace(/'/g,"&#39;")})'>Edit</button></td></tr>`).join('')||'<tr><td colspan="8" class="text-center text-muted">No users</td></tr>';
 }
-document.getElementById('search').addEventListener('input', (e)=>load(e.target.value));
-async function adjustTokens(id){
-  const v=prompt('New token balance:');
-  if(v===null) return;
-  await fetch('/api/v1/admin/users/'+id+'/tokens',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({token_balance:parseInt(v)}),credentials:'same-origin'});
-  load(document.getElementById('search').value);
+function openDrawer(u){ current=u;
+  document.getElementById('dId').textContent='#'+u.id;
+  document.getElementById('fUsername').value=u.username;
+  document.getElementById('fDisplay').value=u.display_name||'';
+  document.getElementById('fPhone').value=u.phone_number||'';
+  document.getElementById('fActive').value=String(!!u.is_active);
+  document.getElementById('fBalance').textContent=u.token_balance;
+  document.getElementById('fIncrease').value='';
+  document.getElementById('preview').textContent=u.token_balance;
+  document.getElementById('dMeta').textContent='Created '+esc(u.created_at)+' · Updated '+esc(u.updated_at);
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('backdrop').classList.add('open');
 }
-async function toggleActive(id,cur){
-  await fetch('/api/v1/admin/users/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_active:!cur}),credentials:'same-origin'});
-  load(document.getElementById('search').value);
+function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); document.getElementById('backdrop').classList.remove('open'); current=null; }
+document.getElementById('fIncrease').addEventListener('input',e=>{
+  const n=parseInt(e.target.value); document.getElementById('preview').textContent=current.token_balance+(n>0?n:0);
+});
+async function saveUser(){
+  if(!current) return;
+  const id=current.id;
+  const profile={username:document.getElementById('fUsername').value.trim(),display_name:document.getElementById('fDisplay').value.trim(),phone_number:document.getElementById('fPhone').value.trim(),is_active:document.getElementById('fActive').value==='true'};
+  let r=await fetch('/api/v1/admin/users/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(profile),credentials:'same-origin'});
+  let j=await r.json(); if(!j.success){ showToast(j.message,'error'); return; }
+  const inc=parseInt(document.getElementById('fIncrease').value);
+  if(inc>0){
+    r=await fetch('/api/v1/admin/users/'+id+'/tokens',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({increase:inc}),credentials:'same-origin'});
+    j=await r.json(); if(!j.success){ showToast(j.message,'error'); return; }
+  }
+  showToast('User saved'); closeDrawer(); load();
 }
+function page(n){ P=Math.max(1,n); load(); }
+['search','role','active'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{P=1;load();}));
 load();
 </script>
 {% endblock %}

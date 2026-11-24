@@ -114,17 +114,28 @@ rec("Admin user detail no hash", r.status_code == 200 and "password_hash" not in
 r = a.get(BASE + "/api/v1/admin/stories")
 rec("Admin stories list", r.status_code == 200, r.status_code)
 r = a.get(BASE + "/api/v1/admin/analytics/summary")
-rec("Analytics summary", r.status_code == 200 and "total_users" in jget(r)["data"], r.status_code)
-for key in ["users_status", "stories_status", "stories_per_day", "top_users", "gemini_usage", "tokens_consumed"]:
+rec("Analytics summary", r.status_code == 200 and "users" in jget(r)["data"], r.status_code)
+r = a.get(BASE + "/api/v1/admin/analytics/db-health")
+rec("Analytics DB health", r.status_code == 200 and "tables" in jget(r)["data"], r.status_code)
+for key in ["users_growth", "users_role", "stories_status", "generation_status", "stories_per_day", "tokens_per_day", "gemini_usage", "top_users"]:
     r = a.get(BASE + "/api/v1/admin/analytics/charts", params={"chart": key})
     rec(f"Chart data {key}", r.status_code == 200 and "labels" in jget(r)["data"], r.status_code)
 r = a.get(BASE + "/api/v1/admin/database/tolstoy_users")
 rows = jget(r).get("data", {}).get("rows", [])
-rec("DB viewer masks hashes", r.status_code == 200 and all(x["password_hash"] == "***" for x in rows), r.status_code)
+rec("DB viewer hides hashes", r.status_code == 200 and all("password_hash" not in x for x in rows), r.status_code)
 r = a.get(BASE + "/api/v1/admin/database/nope")
 rec("DB viewer rejects unknown table", r.status_code == 400, r.status_code)
+r = a.get(BASE + "/api/v1/admin/roles/permissions")
+rec("Role permissions list", r.status_code == 200 and "capabilities" in jget(r)["data"], r.status_code)
+r = a.get(BASE + "/api/v1/admin/system/status")
+rec("System status", r.status_code == 200 and "enabled" in jget(r)["data"], r.status_code)
 r = a.get(BASE + "/api/v1/admin/settings")
 rec("Admin settings list", r.status_code == 200, r.status_code)
+uid = jget(a.get(BASE + "/api/v1/admin/users"))["data"]["users"][0]["id"]
+r = a.patch(BASE + f"/api/v1/admin/users/{uid}/tokens", json={"increase": 1})
+rec("Token increase allowed", r.status_code == 200, r.status_code)
+r = a.patch(BASE + f"/api/v1/admin/users/{uid}/tokens", json={"adjustment": -1})
+rec("Token decrease rejected", r.status_code == 400, r.status_code)
 
 # --- maintenance ---
 r = a.patch(BASE + "/api/v1/admin/maintenance", json={"enabled": True, "password": "wrong"})

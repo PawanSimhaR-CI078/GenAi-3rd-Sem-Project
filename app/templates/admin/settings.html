@@ -1,33 +1,20 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Settings — Admin{% endblock %}
-{% block heading %}System Settings & Maintenance{% endblock %}
+{% block heading %}System Settings{% endblock %}
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <div class="card">
-    <h2 class="card-title mb-3">Settings</h2>
-    <div id="settings" class="text-sm"></div>
-  </div>
-  <div class="card">
-    <h2 class="card-title mb-3">Maintenance mode</h2>
-    <p class="text-sm text-secondary mb-4">Requires your admin password to toggle.</p>
-    <label class="flex items-center gap-2 mb-3"><input type="checkbox" id="maint"> Enabled</label>
-    <input id="pw" type="password" class="form-input mb-3" placeholder="Admin password">
-    <button onclick="toggleMaint()" class="btn btn-danger btn-sm">Apply</button>
-    <div id="msg" class="mt-2"></div>
-  </div>
+<div class="card">
+  <h2 class="card-title mb-3">Settings</h2>
+  <div id="settings" class="text-sm"></div>
+  <p class="text-xs text-muted mt-4">To take the system offline, use <a href="/admin/system">System Control</a>.</p>
 </div>
+{% endblock %}
+
+{% block scripts %}
 <script>
 async function loadSettings(){
   const r=await fetch('/api/v1/admin/settings',{credentials:'same-origin'});
   const j=await r.json();
-  if(j.success) document.getElementById('settings').innerHTML=j.data.settings.map(s=>`<div class="flex justify-between py-2 border-b border-[var(--color-border)]"><span class="font-medium">${s.setting_key}</span><span class="text-secondary">${s.setting_value} <span class="text-muted">(${s.value_type})</span></span></div>`).join('');
-}
-async function toggleMaint(){
-  const enabled=document.getElementById('maint').checked;
-  const password=document.getElementById('pw').value;
-  const r=await fetch('/api/v1/admin/maintenance',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled,password}),credentials:'same-origin'});
-  const j=await r.json();
-  const m=document.getElementById('msg'); m.textContent=j.message; m.className='mt-2 '+(j.success?'text-[var(--color-success)]':'form-error');
+  if(j.success) document.getElementById('settings').innerHTML=j.data.settings.map(s=>`<div class="flex justify-between py-2 border-b border-[var(--color-border)]"><span class="font-medium">${esc(s.setting_key)}</span><span class="text-secondary">${esc(String(s.setting_value).slice(0,120))} <span class="text-muted">(${esc(s.value_type)})</span></span></div>`).join('');
 }
 loadSettings();
 </script>

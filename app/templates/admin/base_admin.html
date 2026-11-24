@@ -16,20 +16,23 @@
   <aside class="sidebar" style="background:var(--color-text);color:#fff;border-right:none;">
     <div style="font-family:var(--font-heading);font-size:20px;font-weight:800;color:#fff;margin-bottom:var(--space-6);">TOLSTOY <span style="font-size:12px;opacity:.6;">Admin</span></div>
     <nav class="space-y-1">
-      <a href="/admin" class="nav-link" style="color:#cbd5e1;"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Dashboard</a>
-      <a href="/admin/users" class="nav-link" style="color:#cbd5e1;"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>Users</a>
-      <a href="/admin/stories" class="nav-link" style="color:#cbd5e1;"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Stories</a>
-      <a href="/admin/database" class="nav-link" style="color:#cbd5e1;"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>Database</a>
-      <a href="/admin/settings" class="nav-link" style="color:#cbd5e1;"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings</a>
+      {% if can('analytics') %}<a href="/admin" class="nav-link {{ 'active' if request.path == '/admin' }}" style="color:#cbd5e1;">◎&nbsp; Analytics</a>{% endif %}
+      {% if can('users_view') %}<a href="/admin/users" class="nav-link {{ 'active' if request.path == '/admin/users' }}" style="color:#cbd5e1;">♙&nbsp; User Editing</a>{% endif %}
+      {% if can('roles_view') %}<a href="/admin/roles" class="nav-link {{ 'active' if request.path == '/admin/roles' }}" style="color:#cbd5e1;">◈&nbsp; Role Access</a>{% endif %}
+      {% if can('database') %}<a href="/admin/database" class="nav-link {{ 'active' if request.path == '/admin/database' }}" style="color:#cbd5e1;">▤&nbsp; Live Database</a>{% endif %}
+      {% if can('stories_admin') %}<a href="/admin/stories" class="nav-link {{ 'active' if request.path == '/admin/stories' }}" style="color:#cbd5e1;">▦&nbsp; Stories</a>{% endif %}
+      {% if can('settings') %}<a href="/admin/settings" class="nav-link {{ 'active' if request.path == '/admin/settings' }}" style="color:#cbd5e1;">⚙&nbsp; Settings</a>{% endif %}
+      {% if can('system') %}<a href="/admin/system" class="nav-link {{ 'active' if request.path == '/admin/system' }}" style="color:#cbd5e1;">◉&nbsp; System Control</a>{% endif %}
     </nav>
     <div style="margin-top:auto;padding-top:var(--space-6);">
-      <button class="nav-link w-full text-left" style="color:#fca5a5;" onclick="logout()"><svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>Logout</button>
+      {% if maintenance_on %}<div class="offline-pill">● SYSTEM OFFLINE</div>{% endif %}
+      <button class="nav-link w-full text-left" style="color:#fca5a5;" onclick="logout()">↪&nbsp; Logout</button>
     </div>
   </aside>
   <div class="main-content">
     <header class="topbar">
       <h1 class="text-lg font-semibold mb-0">{% block heading %}Admin{% endblock %}</h1>
-      <div class="text-sm text-muted">Administrator</div>
+      <div class="text-sm text-muted">{% if maintenance_on %}<span class="badge badge-error">OFFLINE</span>{% else %}Administrator{% endif %}</div>
     </header>
     {% block content %}{% endblock %}
   </div>
@@ -39,6 +42,7 @@
 <script>
 function logout(){ fetch('/api/v1/auth/logout',{method:'POST',credentials:'same-origin'}).then(()=>location.href='/admin/login'); }
 function showToast(msg,type='success'){ const c=document.getElementById('toasts'); const t=document.createElement('div'); t.className='toast '+type; t.textContent=msg; c.appendChild(t); setTimeout(()=>t.remove(),3500); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 </script>
 {% block scripts %}{% endblock %}
 </body>

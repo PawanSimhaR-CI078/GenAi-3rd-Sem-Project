@@ -112,11 +112,14 @@ Error:
 
 ## 5. Administrator
 
-All require role ADMIN/SUPER_ADMIN.
+All require role ADMIN/SUPER_ADMIN. Each endpoint also requires the matching capability
+(`analytics`, `users_view`, `users_edit`, `roles_view`, `roles_manage`, `database`,
+`stories_admin`, `settings`, `system`) from the `role_permissions` setting.
 
 ### GET /api/v1/admin/users
 
-- Query: `page`, `per_page`, `role`, `is_active`, `search`.
+- Query: `page`, `role`, `is_active`, `search`.
+- Returns `users`, `total`, `page`. Never includes password_hash.
 
 ### GET /api/v1/admin/users/{user_id}
 
@@ -124,11 +127,28 @@ All require role ADMIN/SUPER_ADMIN.
 
 ### PATCH /api/v1/admin/users/{user_id}
 
-- Body: subset of profile fields (username edit pending confirmation).
+- Body: subset of `username`, `display_name`, `phone_number`, `is_active`.
+- Duplicate username/phone returns 409. Self-deactivation and deactivating the last active SUPER_ADMIN return 403.
 
 ### PATCH /api/v1/admin/users/{user_id}/tokens
 
-- Body: `{"token_balance": 10}` or `{"adjustment": +5}` (exact contract pending). Admin only.
+- Body: `{"increase": 5}` (positive integer only).
+- Setting `token_balance`, negative `adjustment`, zero or non-integer returns 400.
+- Tokens can only be increased.
+
+### PATCH /api/v1/admin/users/{user_id}/role
+
+- Body: `{"role": "ADMIN", "password": "adminPassword"}`.
+- Requires `roles_manage`, password re-entry, and role guardrails. Self-role-change is blocked.
+
+### GET /api/v1/admin/roles/permissions
+
+- Returns `permissions` (role → capability list), `capabilities`, `editable`.
+
+### PUT /api/v1/admin/roles/permissions
+
+- Body: `{"permissions": {"USER": [], "ADMIN": [...], "SUPER_ADMIN": ["*"]}}`.
+- SUPER_ADMIN is always full. A role cannot revoke its own `roles_manage`.
 
 ### GET /api/v1/admin/stories
 
@@ -136,15 +156,36 @@ All require role ADMIN/SUPER_ADMIN.
 
 ### GET /api/v1/admin/analytics/summary
 
-- Returns aggregate counts: total users, active users, total stories, editing/completed counts, tokens consumed, gemini usage totals.
+- Query: `range` (7, 30, 90, 36500 = all).
+- Returns grouped objects: `users`, `stories`, `tokens`, `system`.
 
 ### GET /api/v1/admin/analytics/charts
 
-- Query: `chart` (key). Returns series for Chart.js.
+- Query: `chart` (`users_growth`, `users_role`, `token_distribution`, `stories_status`,
+  `generation_status`, `stories_per_day`, `tokens_per_day`, `gemini_usage`, `top_users`), `range`.
+
+### GET /api/v1/admin/analytics/db-health
+
+- Row counts and last write per table, plus database size in bytes.
+
+### GET /api/v1/admin/analytics/integrity
+
+- On-demand `PRAGMA integrity_check` and foreign-key violation count.
+
+### GET /api/v1/admin/analytics/recent
+
+- Recent users and recent stories (5 each).
+
+### GET /api/v1/admin/database/meta
+
+- Table names, row counts and database size.
 
 ### GET /api/v1/admin/database/{table_name}
 
-- Allowed tables: the three approved only. Returns paginated rows with password_hash and secret columns stripped.
+- Allowed tables: the three approved only.
+- Query: `page`, `per_page` (max 100), `q` (search).
+- Returns paginated rows with `columns`, `total`, `page`, `pages`. password_hash is omitted;
+  secret settings are masked. Read-only.
 
 ### GET /api/v1/admin/settings
 
@@ -152,10 +193,16 @@ All require role ADMIN/SUPER_ADMIN.
 
 - Body: `{"setting_key": "...", "setting_value": "...", "value_type": "..."}`.
 
+### GET /api/v1/admin/system/status
+
+- Returns `enabled`, `updated_at`, `updated_by`, `affected_users`.
+
 ### PATCH /api/v1/admin/maintenance
 
 - Body: `{"enabled": true, "password": "adminPassword"}`.
 - Backend verifies password against the authenticated admin's hash. 401 on mismatch.
+- While enabled, user pages redirect to `/maintenance` and user APIs return 503 `MAINTENANCE`.
+  Admin login, admin pages and admin APIs remain available. The flag persists across restarts.
 
 ## 6. Contact
 

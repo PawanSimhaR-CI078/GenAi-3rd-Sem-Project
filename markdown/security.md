@@ -11,10 +11,16 @@
 ## 2. Authorization
 
 - Roles: `USER`, `ADMIN`, `SUPER_ADMIN`.
-- Backend decorators enforce role on every protected route.
+- Backend decorators enforce both role and capability on every protected route.
+- Capabilities are stored as JSON in `tolstoy_system_settings` (`role_permissions`); no fourth table.
+- SUPER_ADMIN always holds every capability. Only a role with `roles_manage` can edit the matrix,
+  and it cannot revoke its own management access.
+- Session role and active status are re-read from the database on every request, so role changes take effect immediately.
 - Ownership check: user may only access/modify own stories (by `user_id`); changing URL ID must not bypass.
 - Admin endpoints require ADMIN+.
-- Maintenance mode: user routes blocked; admin routes remain accessible.
+- Admin token adjustments are increases only; the API rejects sets and negative deltas.
+- Role changes and maintenance toggles require password re-entry.
+- At least one active SUPER_ADMIN must always remain; self-demotion and self-deactivation are blocked.
 
 ## 3. CSRF
 
@@ -64,13 +70,16 @@
 ## 9. Maintenance Mode
 
 - Toggle requires re-entering admin password; backend verifies against hash.
+- A single global request guard blocks all user pages and APIs, not only story routes.
 - Cannot be bypassed by frontend.
-- Prevents permanent lockout: at least one admin path remains to disable.
+- Prevents permanent lockout: admin login, admin pages and admin APIs remain reachable.
+- Bootstrap seeds settings only when absent so a restart cannot silently bring the system online.
 
 ## 10. Database Security
 
 - DB file not in project root; backups/exports gitignored.
-- DB viewer strips password_hash and secret columns.
+- DB viewer omits password_hash entirely, masks secret settings, and is read-only.
+- Table names are whitelisted; search columns are fixed per table and parameterized.
 - No direct SQL from user input.
 
 ## 11. Logging
