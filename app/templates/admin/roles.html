@@ -59,10 +59,16 @@ async function load(){
   document.getElementById('tbody').innerHTML=j.data.users.map(u=>{
     const opts=roleKeys.map(r=>'<option'+(r===u.role?' selected':'')+'>'+r+'</option>').join('');
     const you=u.id===me?' <span class="text-muted">(you)</span>':'';
+    const isSelf=u.id===me;
+    // SUPER_ADMIN cannot change his own role - he is the master controller
+    const disabled=isSelf&&u.role==='SUPER_ADMIN'?' disabled':'';
+    const button=isSelf&&u.role==='SUPER_ADMIN'
+      ? '<span class="text-muted">Master controller</span>'
+      : '<button class="btn btn-primary btn-sm" onclick="changeRole('+u.id+')">Apply</button>';
     return '<tr><td>'+u.id+'</td><td>'+esc(u.username)+you+'</td><td><span class="badge badge-primary">'+esc(u.role)+'</span></td>'+
-      '<td><select id="role-'+u.id+'" class="form-select">'+opts+'</select></td>'+
+      '<td><select id="role-'+u.id+'" class="form-select"'+disabled+'>'+opts+'</select></td>'+
       '<td><input id="pw-'+u.id+'" type="password" class="form-input" placeholder="••••••••"></td>'+
-      '<td><button class="btn btn-primary btn-sm" onclick="changeRole('+u.id+')">Apply</button></td></tr>';
+      '<td>'+button+'</td></tr>';
   }).join('');
 }
 async function changeRole(id){

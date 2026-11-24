@@ -92,7 +92,7 @@ async function loadAll(){
     const j=await get('/api/v1/admin/analytics/charts?chart='+key+'&range='+range());
     if(!j.success) return;
     if(charts[id]) charts[id].destroy();
-    charts[id]=new Chart(document.getElementById(id),{type,data:{labels:j.data.labels,datasets:[{label:key,data:j.data.data,backgroundColor:type==='line'?'#5546E8':palette,borderColor:'#5546E8',fill:false,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type!=='line',position:'bottom'}}}});
+    charts[id]=new Chart(document.getElementById(id),{type,data:{labels:j.data.labels,datasets:[{label:key,data:j.data.data,backgroundColor:type==='line'?'#5546E8':palette,borderColor:type==='line'?'#5546E8':'transparent',fill:false,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type!=='line',position:'bottom'}}}});
   }));
   document.getElementById('updated').textContent='Updated '+new Date().toLocaleTimeString();
 }
