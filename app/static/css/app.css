@@ -63,6 +63,9 @@ code, pre, .mono { font-family: var(--font-mono); }
 body.drawer-open { overflow: hidden; }
 .main-content { flex: 1; padding: var(--space-6); min-width: 0; }
 .topbar { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-3) var(--space-5); margin-bottom: var(--space-6); box-shadow: var(--shadow-sm); }
+.nav-link { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); color: var(--color-text-secondary); font-size: 14px; font-weight: 500; transition: all var(--transition); white-space: nowrap; }
+.nav-link:hover { background: var(--color-bg-secondary); color: var(--color-text); }
+.nav-link.active { background: var(--color-primary-subtle); color: var(--color-primary); }
 
 /* Cards */
 .card { background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); box-shadow: var(--shadow-sm); transition: box-shadow var(--transition), transform var(--transition); }
