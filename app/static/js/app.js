@@ -64,3 +64,13 @@ window.fetch = async function (input, init) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupDrawer);
   else setupDrawer();
 })();
+
+// Closing the tab clears sessionStorage, so a load without the marker ends the session.
+// shortcut: this also logs out a tab opened by hand while signed in, matching "close tab = sign out".
+(function () {
+  if (!document.body || !document.body.hasAttribute('data-auth')) return;
+  if (sessionStorage.getItem('tolstoy_tab') === '1') return;
+  fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' })
+    .catch(function () {})
+    .then(function () { location.replace('/login'); });
+})();

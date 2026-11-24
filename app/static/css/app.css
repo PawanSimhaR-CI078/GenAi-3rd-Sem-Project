@@ -69,6 +69,8 @@ body.drawer-open { overflow: hidden; }
 .card:hover { box-shadow: var(--shadow-md); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); }
 .card-title { font-size: 16px; font-weight: 600; margin: 0; }
+/* Chart.js needs a bounded parent; without it maintainAspectRatio:false grows the canvas every resize. */
+.chart-box { position: relative; height: 240px; }
 
 /* Buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); font-family: var(--font-body); font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer; transition: all var(--transition); line-height: 1; }

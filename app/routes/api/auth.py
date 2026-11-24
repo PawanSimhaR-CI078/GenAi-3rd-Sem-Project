@@ -39,6 +39,7 @@ def user_login():
     session["user_id"] = u["id"]
     session["role"] = u["role"]
     session["username"] = u["username"]
+    session.permanent = True
     return jsonify({"success": True, "message": "Logged in", "data": {"user_id": u["id"], "role": u["role"]}})
 
 
@@ -58,6 +59,7 @@ def admin_login():
     session["user_id"] = u["id"]
     session["role"] = u["role"]
     session["username"] = u["username"]
+    session.permanent = True
     return jsonify({"success": True, "message": "Logged in", "data": {"user_id": u["id"], "role": u["role"]}})
 
 

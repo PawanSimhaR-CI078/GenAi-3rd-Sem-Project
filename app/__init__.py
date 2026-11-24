@@ -1,5 +1,6 @@
 import os
-from flask import Flask, jsonify, render_template, request, redirect, url_for
+import time
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session, current_app
 from app.config import get_config
 from app.extensions import csrf
 from app.db import close_db, init_db
@@ -11,9 +12,29 @@ _MAINTENANCE_ALLOW = {
 }
 
 
+def _session_guard():
+    """Sliding idle timeout: 45 minutes with no request ends the session."""
+    if "user_id" not in session:
+        return None
+    now = int(time.time())
+    last = session.get("last_activity")
+    if last is not None and now - int(last) > current_app.config["SESSION_IDLE_TIMEOUT"]:
+        session.clear()
+        if request.path.startswith("/api/"):
+            return jsonify({"success": False, "message": "Session expired", "error": {"code": "SESSION_EXPIRED"}}), 401
+        return redirect(url_for("public.login_page"))
+    if not request.path.startswith("/static/"):
+        session.permanent = True
+        session["last_activity"] = now
+    return None
+
+
 def _global_guards():
     from app.security import sync_session_role
     from app.services.maintenance_service import is_enabled
+    expired = _session_guard()
+    if expired:
+        return expired
     sync_session_role()
     if not is_enabled():
         return None

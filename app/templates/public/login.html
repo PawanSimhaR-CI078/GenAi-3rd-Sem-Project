@@ -33,7 +33,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e)=>{
   const r=await fetch('/api/v1/auth/user/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),credentials:'same-origin'});
   const j=await r.json();
   btn.disabled=false; btn.textContent='Sign in';
-  if(j.success){ window.location=(j.data.role==='ADMIN'||j.data.role==='SUPER_ADMIN')?'/admin':'/dashboard'; } else { document.getElementById('msg').textContent=j.message; }
+  if(j.success){ sessionStorage.setItem('tolstoy_tab','1'); window.location=(j.data.role==='ADMIN'||j.data.role==='SUPER_ADMIN')?'/admin':'/dashboard'; } else { document.getElementById('msg').textContent=j.message; }
 });
 </script>
 {% endblock %}

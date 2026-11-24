@@ -1,4 +1,6 @@
 import os
+from datetime import timedelta
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,6 +22,9 @@ class BaseConfig:
     WTF_CSRF_ENABLED = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
+    # Idle sessions expire after 45 minutes; the cookie is refreshed on each request.
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=45)
+    SESSION_IDLE_TIMEOUT = 45 * 60
 
 
 class DevelopmentConfig(BaseConfig):
