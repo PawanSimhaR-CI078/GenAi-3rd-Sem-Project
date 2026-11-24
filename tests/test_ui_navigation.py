@@ -55,6 +55,7 @@ def test_sidebar_icons_sized_and_admin_active_scoped(client, ctx):
     css = (Path(__file__).resolve().parents[1] / "app/static/css/app.css").read_text(encoding="utf-8")
     assert ".nav-icon { width: 20px; height: 20px; flex: 0 0 20px; }" in css
     assert ".sidebar-admin .nav-link.active" in css
+    assert ".sidebar-admin .nav-link:not(.active) { color: #B9C1D4; }" in css
 
     admin = _make_user(ctx, "sidebar_super", "SUPER_ADMIN")
     _login(client, admin, "SUPER_ADMIN")

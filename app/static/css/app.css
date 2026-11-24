@@ -195,6 +195,8 @@ tr:hover td { background: var(--color-bg); }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 /* Admin additions */
+.sidebar-admin .nav-link:not(.active) { color: #B9C1D4; }
+.sidebar-admin .nav-link:not(.active):hover { background: rgba(255,255,255,.08); color: #fff; }
 .sidebar-admin .nav-link.active { background: rgba(255,255,255,.14) !important; color: #fff !important; border-radius: var(--radius-sm); }
 .offline-pill { background: rgba(220,76,76,.18); color: #fca5a5; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: var(--radius-sm); margin-bottom: var(--space-2); }
 .field-label { display: block; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 4px; }
