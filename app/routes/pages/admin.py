@@ -28,6 +28,14 @@ def admin_roles():
     return render_template("admin/roles.html")
 
 
+@bp.route("/admin/assign-roles")
+@login_required
+@admin_required
+@permission_required("roles_manage")
+def admin_assign_roles():
+    return render_template("admin/assign_roles.html")
+
+
 @bp.route("/admin/stories")
 @login_required
 @admin_required
