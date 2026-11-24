@@ -83,7 +83,8 @@ Links are hidden when the role lacks the capability.
 - **Live Database:** table switcher, row search, pagination, optional 5-second auto-refresh, row detail,
   hidden password hashes and masked secrets. Read-only.
 - **Story management:** table with filters, view, delete/archive.
-- **System settings:** SUPER_ADMIN only; key/value list, maintenance toggle moved to System Control.
+- **System settings:** SUPER_ADMIN only; key/value list. Internal structured settings such as
+  `role_permissions` are hidden and linked to Role Access; maintenance toggle moved to System Control.
 - **System Control:** SUPER_ADMIN only. ONLINE/OFFLINE status card, affected-user count, password
   re-entry, typed confirmation, persistent offline badge in the topbar.
 - **Admin entry points:** public nav and landing Admin card link to `/admin/login`; an ADMIN/SUPER_ADMIN

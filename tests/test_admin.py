@@ -184,6 +184,16 @@ def test_maintenance_blocks_users_not_admins_and_survives_bootstrap(client, ctx)
     assert _json(client.get("/api/v1/admin/system/status"))["data"]["enabled"] is True
 
 
+def test_settings_hide_internal_json(client, ctx):
+    admin = _make_user(ctx, "settings_super", "SUPER_ADMIN")
+    _login(client, admin, "SUPER_ADMIN")
+
+    body = _json(client.get("/api/v1/admin/settings"))["data"]["settings"]
+    keys = {row["setting_key"] for row in body}
+    assert "role_permissions" not in keys
+    assert "app_name" in keys
+
+
 def test_database_viewer_safety(client, ctx):
     admin = _make_user(ctx, "db_admin", "SUPER_ADMIN")
     _login(client, admin, "SUPER_ADMIN")

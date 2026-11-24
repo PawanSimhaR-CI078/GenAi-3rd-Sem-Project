@@ -5,14 +5,17 @@ from app.services.maintenance_service import toggle, is_enabled, status
 
 bp = Blueprint("system", __name__)
 
+# Structured/internal settings are managed by their own screens, not this key/value list.
+INTERNAL_SETTINGS = {"role_permissions"}
+
 
 @bp.route("/settings", methods=["GET"])
 @login_required
 @admin_required
 @permission_required("settings")
 def get_settings():
-    rows = list_settings()
-    return jsonify({"success": True, "message": "OK", "data": {"settings": [dict(r) for r in rows]}})
+    rows = [dict(r) for r in list_settings() if r["setting_key"] not in INTERNAL_SETTINGS]
+    return jsonify({"success": True, "message": "OK", "data": {"settings": rows}})
 
 
 @bp.route("/settings", methods=["PATCH"])

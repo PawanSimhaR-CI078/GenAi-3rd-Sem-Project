@@ -196,6 +196,8 @@ for ADMIN.
 ### GET /api/v1/admin/settings
 
 - Requires `settings` (SUPER_ADMIN only).
+- Returns key/value settings. Internal structured settings such as `role_permissions` are excluded;
+  those are managed through Role Access.
 
 ### PATCH /api/v1/admin/settings
 
