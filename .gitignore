@@ -50,3 +50,13 @@ Thumbs.db
 
 # Logs
 *.log
+logs/
+
+# Tooling scratch
+.superpowers/
+.mypy_cache/
+.ruff_cache/
+
+# Local environment overrides (keep .env.example tracked)
+.env.local
+.env.*.local

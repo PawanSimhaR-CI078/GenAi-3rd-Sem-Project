@@ -113,7 +113,7 @@ See `agents.md` §5. Mandatory across all modules.
 
 ## 15. Security Architecture
 
-See `markdown/security.md`. Auth, CSRF, role policies, ownership checks, input validation, rate limiting, headers. All enforced server-side.
+See `markdown/security.md`. Auth, CSRF, role policies, ownership checks, input validation, rate limiting, headers. All enforced server-side. Capability checks are decorators on both pages and APIs; `wallet_edit`, `roles_view`, `roles_manage`, `settings` and `system` are stripped from non-SUPER_ADMIN roles in `permissions_for()` and rejected by the matrix API.
 
 ## 16. Token Architecture
 

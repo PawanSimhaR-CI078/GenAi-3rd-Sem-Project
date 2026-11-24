@@ -103,12 +103,13 @@ rec("Contact returns controlled error", r.status_code in (200, 500), r.text[:80]
 
 # --- admin ---
 a = session()
-r = a.post(BASE + "/api/v1/auth/admin/login", json={"username": "Pawan Simha R", "password": "iamadmin"})
+r = a.post(BASE + "/api/v1/auth/admin/login", json={"username": "Pawan Simha R", "password": "iamsuperadmin"})
 rec("Admin login 200", r.status_code == 200, r.text[:100])
 
 r = a.get(BASE + "/api/v1/admin/users")
 rec("Admin users list", r.status_code == 200 and len(jget(r)["data"]["users"]) > 0, r.status_code)
-r = a.get(BASE + "/api/v1/admin/users/2")
+uid = jget(a.get(BASE + "/api/v1/admin/users"))["data"]["users"][0]["id"]
+r = a.get(BASE + f"/api/v1/admin/users/{uid}")
 rec("Admin user detail no hash", r.status_code == 200 and "password_hash" not in jget(r)["data"]["user"], r.status_code)
 
 r = a.get(BASE + "/api/v1/admin/stories")
@@ -131,29 +132,39 @@ r = a.get(BASE + "/api/v1/admin/system/status")
 rec("System status", r.status_code == 200 and "enabled" in jget(r)["data"], r.status_code)
 r = a.get(BASE + "/api/v1/admin/settings")
 rec("Admin settings list", r.status_code == 200, r.status_code)
-uid = jget(a.get(BASE + "/api/v1/admin/users"))["data"]["users"][0]["id"]
 r = a.patch(BASE + f"/api/v1/admin/users/{uid}/tokens", json={"increase": 1})
 rec("Token increase allowed", r.status_code == 200, r.status_code)
 r = a.patch(BASE + f"/api/v1/admin/users/{uid}/tokens", json={"adjustment": -1})
 rec("Token decrease rejected", r.status_code == 400, r.status_code)
 
+# --- role separation ---
+adm = session()
+r = adm.post(BASE + "/api/v1/auth/admin/login", json={"username": "Ramesh", "password": "iamadmin"})
+rec("Admin login 200", r.status_code == 200, r.status_code)
+for path in ["/admin", "/admin/users", "/admin/database", "/admin/stories"]:
+    rec(f"Admin allowed {path}", adm.get(BASE + path).status_code == 200, path)
+for path in ["/admin/roles", "/admin/system", "/admin/settings"]:
+    rec(f"Admin blocked {path}", adm.get(BASE + path).status_code == 403, path)
+rec("Admin blocked wallet edit", adm.patch(BASE + f"/api/v1/admin/users/{uid}/tokens", json={"increase": 1}).status_code == 403)
+rec("Admin blocked offline toggle", adm.patch(BASE + "/api/v1/admin/maintenance", json={"enabled": True, "password": "iamadmin"}).status_code == 403)
+
 # --- maintenance ---
 r = a.patch(BASE + "/api/v1/admin/maintenance", json={"enabled": True, "password": "wrong"})
 rec("Maintenance wrong password 401", r.status_code == 401, r.status_code)
-r = a.patch(BASE + "/api/v1/admin/maintenance", json={"enabled": True, "password": "iamadmin"})
+r = a.patch(BASE + "/api/v1/admin/maintenance", json={"enabled": True, "password": "iamsuperadmin"})
 rec("Maintenance enable 200", r.status_code == 200, r.status_code)
 r = s.get(BASE + "/api/v1/stories")
 rec("User blocked in maintenance 503", r.status_code == 503, r.status_code)
 r = a.get(BASE + "/api/v1/admin/users")
 rec("Admin allowed in maintenance", r.status_code == 200, r.status_code)
-r = a.patch(BASE + "/api/v1/admin/maintenance", json={"enabled": False, "password": "iamadmin"})
+r = a.patch(BASE + "/api/v1/admin/maintenance", json={"enabled": False, "password": "iamsuperadmin"})
 rec("Maintenance disable 200", r.status_code == 200, r.status_code)
 
 # --- user cannot access admin endpoints / pages ---
 r = s.get(BASE + "/api/v1/admin/users")
 rec("User blocked from admin API 403", r.status_code == 403, r.status_code)
 r = s.get(BASE + "/admin", allow_redirects=False)
-rec("User blocked from admin page", r.status_code in (302, 303), r.status_code)
+rec("User blocked from admin page", r.status_code == 403, r.status_code)
 
 # --- delete story ---
 r = s.delete(f"{BASE}/api/v1/stories/{sid}")

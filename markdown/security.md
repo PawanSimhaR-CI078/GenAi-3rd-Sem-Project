@@ -13,12 +13,15 @@
 - Roles: `USER`, `ADMIN`, `SUPER_ADMIN`.
 - Backend decorators enforce both role and capability on every protected route.
 - Capabilities are stored as JSON in `tolstoy_system_settings` (`role_permissions`); no fourth table.
-- SUPER_ADMIN always holds every capability. Only a role with `roles_manage` can edit the matrix,
-  and it cannot revoke its own management access.
+- SUPER_ADMIN always holds every capability. `wallet_edit`, `roles_view`, `roles_manage`,
+  `settings` and `system` are hard-coded SUPER_ADMIN-only: they are stripped from other roles on
+  read and rejected by the matrix API, so a stored grant cannot escalate privileges.
+- Analytics, user view/edit, database (read-only) and stories administration are available to ADMIN
+  and SUPER_ADMIN. Settings and system offline control are SUPER_ADMIN only.
 - Session role and active status are re-read from the database on every request, so role changes take effect immediately.
 - Ownership check: user may only access/modify own stories (by `user_id`); changing URL ID must not bypass.
-- Admin endpoints require ADMIN+.
-- Admin token adjustments are increases only; the API rejects sets and negative deltas.
+- Admin endpoints require ADMIN+. Admin token adjustments require `wallet_edit` (SUPER_ADMIN),
+  are increases only, and the API rejects sets and negative deltas.
 - Role changes and maintenance toggles require password re-entry.
 - At least one active SUPER_ADMIN must always remain; self-demotion and self-deactivation are blocked.
 

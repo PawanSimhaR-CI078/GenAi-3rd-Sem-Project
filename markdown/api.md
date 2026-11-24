@@ -113,8 +113,11 @@ Error:
 ## 5. Administrator
 
 All require role ADMIN/SUPER_ADMIN. Each endpoint also requires the matching capability
-(`analytics`, `users_view`, `users_edit`, `roles_view`, `roles_manage`, `database`,
-`stories_admin`, `settings`, `system`) from the `role_permissions` setting.
+(`analytics`, `users_view`, `users_edit`, `wallet_edit`, `roles_view`, `roles_manage`, `database`,
+`stories_admin`, `settings`, `system`) from the `role_permissions` setting. `wallet_edit`,
+`roles_view`, `roles_manage`, `settings` and `system` are SUPER_ADMIN-only and cannot be granted
+to USER or ADMIN, including through the matrix API. Settings and system endpoints return 403
+for ADMIN.
 
 ### GET /api/v1/admin/users
 
@@ -132,6 +135,7 @@ All require role ADMIN/SUPER_ADMIN. Each endpoint also requires the matching cap
 
 ### PATCH /api/v1/admin/users/{user_id}/tokens
 
+- Requires `wallet_edit` (SUPER_ADMIN only).
 - Body: `{"increase": 5}` (positive integer only).
 - Setting `token_balance`, negative `adjustment`, zero or non-integer returns 400.
 - Tokens can only be increased.
@@ -143,12 +147,14 @@ All require role ADMIN/SUPER_ADMIN. Each endpoint also requires the matching cap
 
 ### GET /api/v1/admin/roles/permissions
 
-- Returns `permissions` (role → capability list), `capabilities`, `editable`.
+- Returns `permissions` (role → capability list), `capabilities`, `locked` (SUPER_ADMIN-only keys), `editable`.
 
 ### PUT /api/v1/admin/roles/permissions
 
 - Body: `{"permissions": {"USER": [], "ADMIN": [...], "SUPER_ADMIN": ["*"]}}`.
 - SUPER_ADMIN is always full. A role cannot revoke its own `roles_manage`.
+- Returning any locked capability for USER/ADMIN is rejected with 403 `FORBIDDEN`; locked keys in
+  stored settings are ignored when computing effective permissions.
 
 ### GET /api/v1/admin/stories
 
@@ -189,16 +195,22 @@ All require role ADMIN/SUPER_ADMIN. Each endpoint also requires the matching cap
 
 ### GET /api/v1/admin/settings
 
+- Requires `settings` (SUPER_ADMIN only).
+
 ### PATCH /api/v1/admin/settings
+
+- Requires `settings` (SUPER_ADMIN only).
 
 - Body: `{"setting_key": "...", "setting_value": "...", "value_type": "..."}`.
 
 ### GET /api/v1/admin/system/status
 
+- Requires `system` (SUPER_ADMIN only).
 - Returns `enabled`, `updated_at`, `updated_by`, `affected_users`.
 
 ### PATCH /api/v1/admin/maintenance
 
+- Requires `system` (SUPER_ADMIN only).
 - Body: `{"enabled": true, "password": "adminPassword"}`.
 - Backend verifies password against the authenticated admin's hash. 401 on mismatch.
 - While enabled, user pages redirect to `/maintenance` and user APIs return 503 `MAINTENANCE`.

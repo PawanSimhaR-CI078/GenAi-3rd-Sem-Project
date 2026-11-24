@@ -2,7 +2,8 @@ import re
 import sqlite3
 from flask import Blueprint, request, jsonify, session
 from app.security import (login_required, admin_required, permission_required,
-                          VALID_ROLES, ADMIN_CAPABILITIES, permissions_for)
+                          VALID_ROLES, ADMIN_CAPABILITIES, SUPER_ONLY_CAPABILITIES,
+                          permissions_for)
 from app.models.user import (list_users, get_user_by_id, update_user, adjust_tokens,
                              count_users, count_active_users)
 from app.models.story import list_all_stories
@@ -135,7 +136,7 @@ def user_update(user_id):
 @bp.route("/users/<int:user_id>/tokens", methods=["PATCH"])
 @login_required
 @admin_required
-@permission_required("users_edit")
+@permission_required("wallet_edit")
 def user_tokens(user_id):
     data = request.get_json(silent=True) or {}
     if "token_balance" in data or "adjustment" in data:
@@ -181,6 +182,7 @@ def get_permissions():
     return jsonify({"success": True, "message": "OK", "data": {
         "permissions": stored,
         "capabilities": ADMIN_CAPABILITIES,
+        "locked": sorted(SUPER_ONLY_CAPABILITIES),
         "editable": "roles_manage" in permissions_for(),
     }})
 
@@ -202,6 +204,8 @@ def put_permissions():
         values = matrix.get(role, [])
         if not isinstance(values, list) or any(v not in ADMIN_CAPABILITIES for v in values):
             return _fail("VALIDATION_ERROR", f"Invalid capabilities for {role}")
+        if set(values) & SUPER_ONLY_CAPABILITIES:
+            return _fail("FORBIDDEN", "Some capabilities are SUPER_ADMIN only", 403)
         clean[role] = values
     actor_role = session.get("role")
     if actor_role != "SUPER_ADMIN" and "roles_manage" not in clean.get(actor_role, []):

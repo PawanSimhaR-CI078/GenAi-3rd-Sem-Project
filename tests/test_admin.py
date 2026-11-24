@@ -2,6 +2,8 @@ import pytest
 from app import create_app
 from app.models.user import create_user, get_user_by_id
 from app.models.system_settings import set_setting
+from app.security import DEFAULT_ROLE_PERMISSIONS, SUPER_ONLY_CAPABILITIES
+from app.schemas.validators import validate_username
 from app.services.bootstrap import bootstrap
 
 
@@ -26,6 +28,23 @@ def _json(response):
     return response.get_json()
 
 
+def test_default_permissions_lock_super_capabilities():
+    admin = set(DEFAULT_ROLE_PERMISSIONS["ADMIN"])
+    assert not (admin & SUPER_ONLY_CAPABILITIES)
+    assert {"analytics", "users_view", "users_edit", "database", "stories_admin"} <= admin
+    assert "settings" not in admin
+    assert "system" not in admin
+    assert "roles_view" not in admin
+    assert "wallet_edit" not in admin
+
+
+def test_username_allows_single_spaces():
+    assert validate_username("Pawan Simha R")
+    assert validate_username("Ramesh")
+    assert not validate_username(" leading")
+    assert not validate_username("double  space")
+
+
 def test_token_increase_only(client, ctx):
     admin = _make_user(ctx, "root_admin", "SUPER_ADMIN")
     uid = _make_user(ctx, "token_user")
@@ -41,6 +60,52 @@ def test_token_increase_only(client, ctx):
         assert r.status_code == 400, body
     with ctx:
         assert get_user_by_id(uid)["token_balance"] == 10
+
+
+def test_admin_cannot_edit_wallet(client, ctx):
+    admin = _make_user(ctx, "wallet_admin", "ADMIN")
+    uid = _make_user(ctx, "wallet_user")
+    _login(client, admin, "ADMIN")
+
+    assert client.patch(f"/api/v1/admin/users/{uid}/tokens", json={"increase": 5}).status_code == 403
+    with ctx:
+        assert get_user_by_id(uid)["token_balance"] == 5
+
+
+def test_admin_blocked_from_super_only_pages_and_apis(client, ctx):
+    admin = _make_user(ctx, "limited_admin", "ADMIN")
+    _login(client, admin, "ADMIN")
+
+    for path in ("/admin/roles", "/admin/system", "/admin/settings"):
+        assert client.get(path).status_code == 403, path
+    for path in ("/api/v1/admin/roles/permissions", "/api/v1/admin/system/status"):
+        assert client.get(path).status_code == 403, path
+    assert client.patch("/api/v1/admin/maintenance", json={"enabled": True, "password": "password123"}).status_code == 403
+    assert client.get("/api/v1/admin/settings").status_code == 403
+
+
+def test_admin_allowed_pages_and_profile_edit(client, ctx):
+    admin = _make_user(ctx, "normal_admin", "ADMIN")
+    uid = _make_user(ctx, "profile_user")
+    _login(client, admin, "ADMIN")
+
+    for path in ("/admin", "/admin/users", "/admin/database", "/admin/stories"):
+        assert client.get(path).status_code == 200, path
+    assert client.get("/api/v1/admin/analytics/summary").status_code == 200
+    assert client.get("/api/v1/admin/database/tolstoy_users").status_code == 200
+    r = client.patch(f"/api/v1/admin/users/{uid}", json={"display_name": "Renamed"})
+    assert r.status_code == 200
+    with ctx:
+        assert get_user_by_id(uid)["display_name"] == "Renamed"
+
+
+def test_super_admin_has_every_page(client, ctx):
+    admin = _make_user(ctx, "all_super", "SUPER_ADMIN")
+    _login(client, admin, "SUPER_ADMIN")
+    for path in ("/admin", "/admin/users", "/admin/roles", "/admin/database",
+                 "/admin/stories", "/admin/settings", "/admin/system"):
+        r = client.get(path)
+        assert r.status_code == 200, (path, r.status_code)
 
 
 def test_user_edit_validation_and_role_guard(client, ctx):
@@ -70,10 +135,32 @@ def test_permissions_enforced(client, ctx):
     _login(client, super_id, "SUPER_ADMIN")
     assert client.get("/api/v1/admin/users").status_code == 200
     assert client.put("/api/v1/admin/roles/permissions", json={"permissions": {
-        "USER": [], "ADMIN": ["users_view", "roles_manage"], "SUPER_ADMIN": ["*"]}}).status_code == 200
+        "USER": [], "ADMIN": ["users_view", "wallet_edit"], "SUPER_ADMIN": ["*"]}}).status_code == 403
+    assert client.put("/api/v1/admin/roles/permissions", json={"permissions": {
+        "USER": [], "ADMIN": ["users_view"], "SUPER_ADMIN": ["*"]}}).status_code == 200
 
     _login(client, admin_id, "ADMIN")
     assert client.get("/api/v1/admin/users").status_code == 200
+    assert client.patch("/api/v1/admin/users/2/tokens", json={"increase": 1}).status_code == 403
+
+
+def test_locked_matrix_entries_are_stripped(client, ctx):
+    super_id = _make_user(ctx, "strip_super", "SUPER_ADMIN")
+    admin_id = _make_user(ctx, "strip_admin", "ADMIN")
+    with ctx:
+        set_setting("role_permissions", {
+            "USER": [],
+            "ADMIN": ["users_view", "system", "roles_view", "settings", "wallet_edit"],
+            "SUPER_ADMIN": ["*"],
+        }, "json")
+
+    _login(client, admin_id, "ADMIN")
+    assert client.get("/admin/system").status_code == 403
+    assert client.get("/api/v1/admin/system/status").status_code == 403
+    assert client.patch("/api/v1/admin/maintenance", json={"enabled": True, "password": "password123"}).status_code == 403
+
+    _login(client, super_id, "SUPER_ADMIN")
+    assert client.get("/api/v1/admin/roles/permissions").json["data"]["locked"]
 
 
 def test_maintenance_blocks_users_not_admins_and_survives_bootstrap(client, ctx):

@@ -9,7 +9,7 @@ def require_fields(data, fields):
     return None
 
 def validate_username(u):
-    return bool(u) and len(u) >= 3 and len(u) <= 40 and re.match(r"^[A-Za-z0-9_.-]+$", u)
+    return bool(u) and 3 <= len(u) <= 40 and re.match(r"^[A-Za-z0-9_.-]+(?: [A-Za-z0-9_.-]+)*$", u)
 
 def validate_password(p):
     return bool(p) and len(p) >= 8

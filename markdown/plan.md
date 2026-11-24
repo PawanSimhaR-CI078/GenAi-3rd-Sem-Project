@@ -106,3 +106,9 @@ See `context.md` §14 and the `Owner Confirmation Required` section below. These
 10. **Dynamic page permissions** — required despite three-table limit? Likely no; fixed role-based policy. Depends: Phase 8.
 11. **Story JSON output schema** — exact fields for scenes/panels/dialogue/narration. Depends: Phase 6, 7.
 12. **Editable user fields by admin** — username editable or only profile info? Depends: Phase 8.
+
+**Resolved during implementation:** #2 three admin accounts (`Pawan Simha R` = SUPER_ADMIN,
+`Ramesh` and `Suresh` = ADMIN); #3 SUPER_ADMIN-only wallet, Role Access, settings and offline
+control; #10 dynamic page permissions remain capability toggles stored as JSON in
+`tolstoy_system_settings`; #12 admins may edit username, display name, phone and active state —
+wallet increases are SUPER_ADMIN-only.

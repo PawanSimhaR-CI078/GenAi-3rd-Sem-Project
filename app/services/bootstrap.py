@@ -13,8 +13,9 @@ def bootstrap():
     ensure_setting("role_permissions", DEFAULT_ROLE_PERMISSIONS, "json", "Role capability matrix")
 
     pairs = [
-        (os.environ.get("ADMIN_USERNAME"), os.environ.get("ADMIN_PASSWORD"), "ADMIN"),
         (os.environ.get("SUPER_ADMIN_USERNAME"), os.environ.get("SUPER_ADMIN_PASSWORD"), "SUPER_ADMIN"),
+        (os.environ.get("ADMIN_USERNAME"), os.environ.get("ADMIN_PASSWORD"), "ADMIN"),
+        (os.environ.get("ADMIN2_USERNAME"), os.environ.get("ADMIN2_PASSWORD"), "ADMIN"),
     ]
     for uname, pw, role in pairs:
         if uname and pw and not get_user_by_username(uname):

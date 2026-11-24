@@ -13,7 +13,7 @@ Users submit a story idea or story content. TOLSTOY uses Google's Gemini API to 
 ## 3. Users
 
 - **Normal users:** register, log in, create/edit stories, generate scripts, manage token balance, contact admin.
-- **Administrators:** two initial accounts (role assignment pending owner confirmation) with analytics, user/story management, database viewer, settings, maintenance mode.
+- **Administrators:** `ADMIN` accounts (Ramesh, Suresh) have analytics, user/story management and a read-only database viewer. `SUPER_ADMIN` (Pawan Simha R) additionally owns Role Access, wallet increases, settings and system offline control.
 
 ## 4. Core Functionality
 

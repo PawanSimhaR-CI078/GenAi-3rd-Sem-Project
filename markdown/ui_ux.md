@@ -74,16 +74,18 @@ Links are hidden when the role lacks the capability.
   token balance distribution, stories by status, generation outcomes, stories per day, tokens per day,
   top users, Gemini usage), complete database overview (table counts, size, on-demand integrity check),
   recent signups and recent stories. Range selector: 7 / 30 / 90 / all.
-- **User Editing:** searchable/filterable table with a side drawer for username, display name, phone,
-  active state and tokens. Token control is “Add tokens” only, with a live preview of the new balance.
-- **Role Access:** permission matrix (capabilities × roles, SUPER_ADMIN locked) plus user role assignment
-  with password re-entry and guardrails.
+- **User Editing:** searchable/filterable table with a side drawer for username, display name, phone
+  and active state (ADMIN+). The “Add tokens” control appears only for SUPER_ADMIN, is increase-only,
+  and shows a live preview of the new balance.
+- **Role Access:** SUPER_ADMIN only. Permission matrix (capabilities × roles, SUPER_ADMIN locked)
+  plus user role assignment with password re-entry and guardrails. Locked capabilities render as
+  🔒 and cannot be granted to USER/ADMIN.
 - **Live Database:** table switcher, row search, pagination, optional 5-second auto-refresh, row detail,
   hidden password hashes and masked secrets. Read-only.
 - **Story management:** table with filters, view, delete/archive.
-- **System settings:** key/value list; maintenance toggle moved to System Control.
-- **System Control:** ONLINE/OFFLINE status card, affected-user count, password re-entry, typed
-  confirmation, persistent offline badge in the topbar.
+- **System settings:** SUPER_ADMIN only; key/value list, maintenance toggle moved to System Control.
+- **System Control:** SUPER_ADMIN only. ONLINE/OFFLINE status card, affected-user count, password
+  re-entry, typed confirmation, persistent offline badge in the topbar.
 
 ## 6. Responsive Behavior
 

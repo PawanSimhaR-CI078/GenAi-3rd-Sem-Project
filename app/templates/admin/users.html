@@ -31,6 +31,7 @@
     <label class="field-label">Display name</label><input id="fDisplay" class="form-input mb-3">
     <label class="field-label">Phone</label><input id="fPhone" class="form-input mb-3">
     <label class="field-label">Active</label><select id="fActive" class="form-select mb-3"><option value="true">Active</option><option value="false">Inactive</option></select>
+    {% if can('wallet_edit') %}
     <div class="card mb-3" style="box-shadow:none;background:var(--color-bg-secondary);">
       <h4 class="mb-2">Tokens</h4>
       <div class="text-sm mb-2">Current balance: <strong id="fBalance">0</strong></div>
@@ -38,6 +39,7 @@
       <input id="fIncrease" type="number" min="1" step="1" class="form-input" placeholder="e.g. 5">
       <div class="text-xs text-muted mt-1">New balance: <strong id="preview">0</strong></div>
     </div>
+    {% endif %}
     <div id="dMeta" class="text-xs text-muted mb-3"></div>
     <button class="btn btn-primary w-full" onclick="saveUser()">Save changes</button>
   </div>
@@ -48,6 +50,7 @@
 {% block scripts %}
 <script>
 let P=1, current=null;
+const canWallet = {{ 'true' if can('wallet_edit') else 'false' }};
 function q(){ const p=new URLSearchParams(); const s=document.getElementById('search').value; const r=document.getElementById('role').value; const a=document.getElementById('active').value;
   if(s)p.set('search',s); if(r)p.set('role',r); if(a)p.set('is_active',a); p.set('page',P); return p.toString(); }
 async function load(){
@@ -68,15 +71,17 @@ function openDrawer(u){ current=u;
   document.getElementById('fDisplay').value=u.display_name||'';
   document.getElementById('fPhone').value=u.phone_number||'';
   document.getElementById('fActive').value=String(!!u.is_active);
-  document.getElementById('fBalance').textContent=u.token_balance;
-  document.getElementById('fIncrease').value='';
-  document.getElementById('preview').textContent=u.token_balance;
+  if(canWallet){
+    document.getElementById('fBalance').textContent=u.token_balance;
+    document.getElementById('fIncrease').value='';
+    document.getElementById('preview').textContent=u.token_balance;
+  }
   document.getElementById('dMeta').textContent='Created '+esc(u.created_at)+' · Updated '+esc(u.updated_at);
   document.getElementById('drawer').classList.add('open');
   document.getElementById('backdrop').classList.add('open');
 }
 function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); document.getElementById('backdrop').classList.remove('open'); current=null; }
-document.getElementById('fIncrease').addEventListener('input',e=>{
+if(canWallet) document.getElementById('fIncrease').addEventListener('input',e=>{
   const n=parseInt(e.target.value); document.getElementById('preview').textContent=current.token_balance+(n>0?n:0);
 });
 async function saveUser(){
@@ -85,10 +90,12 @@ async function saveUser(){
   const profile={username:document.getElementById('fUsername').value.trim(),display_name:document.getElementById('fDisplay').value.trim(),phone_number:document.getElementById('fPhone').value.trim(),is_active:document.getElementById('fActive').value==='true'};
   let r=await fetch('/api/v1/admin/users/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(profile),credentials:'same-origin'});
   let j=await r.json(); if(!j.success){ showToast(j.message,'error'); return; }
-  const inc=parseInt(document.getElementById('fIncrease').value);
-  if(inc>0){
-    r=await fetch('/api/v1/admin/users/'+id+'/tokens',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({increase:inc}),credentials:'same-origin'});
-    j=await r.json(); if(!j.success){ showToast(j.message,'error'); return; }
+  if(canWallet){
+    const inc=parseInt(document.getElementById('fIncrease').value);
+    if(inc>0){
+      r=await fetch('/api/v1/admin/users/'+id+'/tokens',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({increase:inc}),credentials:'same-origin'});
+      j=await r.json(); if(!j.success){ showToast(j.message,'error'); return; }
+    }
   }
   showToast('User saved'); closeDrawer(); load();
 }
