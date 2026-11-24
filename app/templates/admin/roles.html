@@ -38,8 +38,8 @@ async function loadMatrix(){
   matrix=j.data.permissions; caps=j.data.capabilities; editable=j.data.editable;
   locked=j.data.locked||[];
   const rows=Object.entries(caps).map(([key,label])=>`<tr><td>${esc(label)}</td>${roleKeys.map(r=>{
-    if(r==='SUPER_ADMIN') return '<td class="text-center" title="SUPER_ADMIN always has every capability">☑ 🔒</td>';
-    if(locked.includes(key)) return '<td class="text-center text-muted" title="SUPER_ADMIN only">🔒</td>';
+    if(r==='SUPER_ADMIN') return '<td class="text-center" title="SUPER_ADMIN always has every capability">✓ Full</td>';
+    if(locked.includes(key)) return '<td class="text-center text-muted" title="SUPER_ADMIN only">lock</td>';
     const checked=(matrix[r]||[]).includes(key)?'checked':'';
     return `<td class="text-center"><input type="checkbox" data-cap="${key}" data-role="${r}" ${checked} ${editable?'':'disabled'}></td>`;
   }).join('')}</tr>`).join('');
