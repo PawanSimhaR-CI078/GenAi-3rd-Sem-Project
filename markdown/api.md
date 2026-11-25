@@ -196,14 +196,18 @@ for ADMIN.
 ### GET /api/v1/admin/settings
 
 - Requires `settings` (SUPER_ADMIN only).
-- Returns key/value settings. Internal structured settings such as `role_permissions` are excluded;
-  those are managed through Role Access.
+- Returns key/value settings. Internal structured settings such as `role_permissions` and
+  `maintenance_mode` are excluded; those are managed through Role Access and System Control.
 
 ### PATCH /api/v1/admin/settings
 
 - Requires `settings` (SUPER_ADMIN only).
 
 - Body: `{"setting_key": "...", "setting_value": "...", "value_type": "..."}`.
+- Only `app_name`, `default_token_balance`, `token_refill_amount`,
+  `token_refill_interval_hours` and `token_cost_per_generation` are writable here.
+  Integer settings require a positive integer; other keys return `400 VALIDATION_ERROR`.
+  `value_type` is derived from the key.
 
 ### GET /api/v1/admin/system/status
 

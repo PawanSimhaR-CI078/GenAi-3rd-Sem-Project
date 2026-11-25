@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>if (sessionStorage.getItem('tolstoy_sidebar_collapsed') === '1') document.documentElement.classList.add('sidebar-collapsed');</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}TOLSTOY Admin{% endblock %}</title>
@@ -14,24 +15,25 @@
 </head>
 <body data-auth="1">
 <div class="app-shell">
-  <aside class="sidebar sidebar-admin" id="sidebar" style="background:var(--color-text);color:#fff;border-right:none;">
+  <aside class="sidebar sidebar-admin" id="sidebar" style="background:var(--color-text);color:#fff;">
     <div class="sidebar-head" style="margin-bottom:var(--space-6);">
-      <div style="font-family:var(--font-heading);font-size:20px;font-weight:800;color:#fff;">TOLSTOY <span style="font-size:12px;opacity:.6;">Admin</span></div>
+      <div class="nav-label" style="font-family:var(--font-heading);font-size:20px;font-weight:800;color:#fff;">TOLSTOY</div>
+      <button type="button" class="sidebar-collapse" data-sidebar-collapse aria-expanded="true" aria-label="Collapse sidebar"><i class="material-icons" aria-hidden="true">chevron_left</i></button>
       <button type="button" class="sidebar-close" data-sidebar-close aria-label="Close menu">×</button>
     </div>
     <nav class="space-y-1">
-      {% if can('analytics') %}<a href="/admin" class="nav-link {{ 'active' if request.path == '/admin' }}"><i class="material-icons">dashboard</i> Analytics</a>{% endif %}
-      {% if can('users_view') %}<a href="/admin/users" class="nav-link {{ 'active' if request.path == '/admin/users' }}"><i class="material-icons">people</i> User Editing</a>{% endif %}
-      {% if can('roles_view') %}<a href="/admin/roles" class="nav-link {{ 'active' if request.path == '/admin/roles' }}"><i class="material-icons">security</i> Role Access</a>{% endif %}
-      {% if can('roles_manage') %}<a href="/admin/assign-roles" class="nav-link {{ 'active' if request.path == '/admin/assign-roles' }}"><i class="material-icons">how_to_reg</i> Assign Roles</a>{% endif %}
-      {% if can('database') %}<a href="/admin/database" class="nav-link {{ 'active' if request.path == '/admin/database' }}"><i class="material-icons">storage</i> Live Database</a>{% endif %}
-      {% if can('stories_admin') %}<a href="/admin/stories" class="nav-link {{ 'active' if request.path == '/admin/stories' }}"><i class="material-icons">auto_stories</i> Stories</a>{% endif %}
-      {% if can('settings') %}<a href="/admin/settings" class="nav-link {{ 'active' if request.path == '/admin/settings' }}"><i class="material-icons">settings</i> Settings</a>{% endif %}
-      {% if can('system') %}<a href="/admin/system" class="nav-link {{ 'active' if request.path == '/admin/system' }}"><i class="material-icons">system_update</i> System Control</a>{% endif %}
+      {% if can('analytics') %}<a href="/admin" class="nav-link {{ 'active' if request.path == '/admin' }}" title="Analytics"><i class="material-icons">dashboard</i><span class="nav-label">Analytics</span></a>{% endif %}
+      {% if can('users_view') %}<a href="/admin/users" class="nav-link {{ 'active' if request.path == '/admin/users' }}" title="User Editing"><i class="material-icons">people</i><span class="nav-label">User Editing</span></a>{% endif %}
+      {% if can('roles_view') %}<a href="/admin/roles" class="nav-link {{ 'active' if request.path == '/admin/roles' }}" title="Role Access"><i class="material-icons">security</i><span class="nav-label">Role Access</span></a>{% endif %}
+      {% if can('roles_manage') %}<a href="/admin/assign-roles" class="nav-link {{ 'active' if request.path == '/admin/assign-roles' }}" title="Assign Roles"><i class="material-icons">how_to_reg</i><span class="nav-label">Assign Roles</span></a>{% endif %}
+      {% if can('database') %}<a href="/admin/database" class="nav-link {{ 'active' if request.path == '/admin/database' }}" title="Live Database"><i class="material-icons">storage</i><span class="nav-label">Live Database</span></a>{% endif %}
+      {% if can('stories_admin') %}<a href="/admin/stories" class="nav-link {{ 'active' if request.path == '/admin/stories' }}" title="Stories"><i class="material-icons">auto_stories</i><span class="nav-label">Stories</span></a>{% endif %}
+      {% if can('settings') %}<a href="/admin/settings" class="nav-link {{ 'active' if request.path == '/admin/settings' }}" title="Settings"><i class="material-icons">settings</i><span class="nav-label">Settings</span></a>{% endif %}
+      {% if can('system') %}<a href="/admin/system" class="nav-link {{ 'active' if request.path == '/admin/system' }}" title="System Control"><i class="material-icons">system_update</i><span class="nav-label">System Control</span></a>{% endif %}
     </nav>
     <div style="margin-top:auto;padding-top:var(--space-6);">
       {% if maintenance_on %}<div class="offline-pill">● SYSTEM OFFLINE</div>{% endif %}
-      <button class="nav-link w-full text-left" style="color:#fca5a5;" onclick="logout()">↪&nbsp; Logout</button>
+      <button class="nav-link w-full text-left" style="color:#fca5a5;" title="Logout" onclick="logout()"><i class="material-icons nav-icon" aria-hidden="true">logout</i><span class="nav-label">Logout</span></button>
     </div>
   </aside>
   <div class="sidebar-backdrop" data-sidebar-backdrop></div>

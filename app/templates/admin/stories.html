@@ -17,10 +17,10 @@ async function load(){
   if(!j.success) return;
   document.getElementById('tbody').innerHTML=j.data.stories.map(s=>`
     <tr>
-      <td>${s.id}</td><td>${s.user_id}</td><td>${s.title}</td>
-      <td><span class="badge ${s.story_status==='COMPLETED'?'badge-success':'badge-warning'}">${s.story_status}</span></td>
-      <td><span class="badge badge-muted">${s.generation_status}</span></td>
-      <td>${s.tokens_consumed}</td>
+      <td>${esc(s.id)}</td><td>${esc(s.user_id)}</td><td>${esc(s.title)}</td>
+      <td><span class="badge ${s.story_status==='COMPLETED'?'badge-success':'badge-warning'}">${esc(s.story_status)}</span></td>
+      <td><span class="badge badge-muted">${esc(s.generation_status)}</span></td>
+      <td>${esc(s.tokens_consumed)}</td>
     </tr>`).join('');
 }
 load();

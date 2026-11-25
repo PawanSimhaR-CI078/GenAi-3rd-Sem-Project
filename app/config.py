@@ -52,4 +52,7 @@ CONFIG_MAP = {
 
 def get_config(name=None):
     name = name or os.environ.get("FLASK_ENV", "development")
-    return CONFIG_MAP.get(name, DevelopmentConfig)
+    cfg = CONFIG_MAP.get(name, DevelopmentConfig)
+    if cfg is ProductionConfig and os.environ.get("SECRET_KEY", "dev-secret-change-me") == "dev-secret-change-me":
+        raise RuntimeError("SECRET_KEY must be set to a non-default value in production")
+    return cfg

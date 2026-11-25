@@ -63,7 +63,10 @@ def create_app(config_name=None):
     app.teardown_appcontext(close_db)
 
     @app.after_request
-    def no_cache_admin(response):
+    def security_headers(response):
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "same-origin")
         if request.path.startswith("/admin"):
             response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         return response

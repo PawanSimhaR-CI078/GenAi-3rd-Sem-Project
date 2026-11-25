@@ -11,8 +11,8 @@
 <script>
 async function load(){ const r=await fetch('/api/v1/auth/me',{credentials:'same-origin'}); const j=await r.json(); if(j.success){ const d=j.data; document.getElementById('info').innerHTML=`
     <div class="space-y-3 text-sm">
-      <div class="flex justify-between"><span class="text-secondary">Username</span><span class="font-medium">${d.username}</span></div>
-      <div class="flex justify-between"><span class="text-secondary">Display name</span><span class="font-medium">${d.display_name||'-'}</span></div>
+      <div class="flex justify-between"><span class="text-secondary">Username</span><span class="font-medium">${esc(d.username)}</span></div>
+      <div class="flex justify-between"><span class="text-secondary">Display name</span><span class="font-medium">${esc(d.display_name||'-')}</span></div>
       <div class="flex justify-between"><span class="text-secondary">Role</span><span class="badge badge-primary">${d.role}</span></div>
       <div class="flex justify-between"><span class="text-secondary">Tokens</span><span class="font-medium">${d.token_balance}</span></div>
     </div>`; } }

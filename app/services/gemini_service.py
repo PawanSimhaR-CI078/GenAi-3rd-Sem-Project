@@ -74,8 +74,14 @@ def generate(story):
     except json.JSONDecodeError:
         raise GeminiError("Invalid JSON from Gemini")
 
-    if not isinstance(data, dict) or "scenes" not in data:
+    if not isinstance(data, dict) or not isinstance(data.get("scenes"), list):
         raise GeminiError("Malformed script structure")
+    for scene in data["scenes"]:
+        if not isinstance(scene, dict) or not isinstance(scene.get("panels"), list):
+            raise GeminiError("Malformed scene structure")
+        for panel in scene["panels"]:
+            if not isinstance(panel, dict) or not isinstance(panel.get("description"), str):
+                raise GeminiError("Malformed panel structure")
 
     # usage
     usage = getattr(resp, "usage_metadata", None)

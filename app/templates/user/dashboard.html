@@ -48,10 +48,10 @@ async function load(){
   el.innerHTML=stories.slice(0,6).map(s=>`
     <a href="/stories/${s.id}" class="flex justify-between items-center py-3 border-b border-[var(--color-border)] hover:bg-[var(--color-bg)] px-2 rounded transition">
       <div>
-        <div class="font-medium">${s.title}</div>
-        <div class="text-sm text-secondary">${(s.content||'').slice(0,80)}</div>
+        <div class="font-medium">${esc(s.title)}</div>
+        <div class="text-sm text-secondary">${esc((s.content||'').slice(0,80))}</div>
       </div>
-      <span class="badge ${s.story_status==='COMPLETED'?'badge-success':'badge-warning'}">${s.story_status}</span>
+      <span class="badge ${s.story_status==='COMPLETED'?'badge-success':'badge-warning'}">${esc(s.story_status)}</span>
     </a>`).join('');
 }
 load();

@@ -58,7 +58,7 @@ def list_users(search=None, role=None, is_active=None, page=1, per_page=20):
     return query_db(sql, tuple(args))
 
 
-def update_user(uid, fields, updated_by):
+def update_user(uid, fields, updated_by, keep_last_super=False):
     allowed = {"display_name", "phone_number", "role", "is_active", "username"}
     sets = []
     args = []
@@ -67,11 +67,30 @@ def update_user(uid, fields, updated_by):
             sets.append(f"{k}=?")
             args.append(v)
     if not sets:
-        return
-    sets.append("updated_by=?")
-    sets.append("updated_at=?")
-    args += [updated_by, now_iso(), uid]
-    execute_db(f"UPDATE tolstoy_users SET {', '.join(sets)} WHERE id=?", tuple(args))
+        return True
+    db = get_db()
+    db.execute("BEGIN IMMEDIATE")
+    try:
+        if keep_last_super:
+            row = db.execute("SELECT role, is_active FROM tolstoy_users WHERE id=?", (uid,)).fetchone()
+            new_role = fields.get("role", row["role"] if row else None)
+            new_active = fields.get("is_active", row["is_active"] if row else None)
+            if row and row["role"] == ROLE_SUPER and row["is_active"] and (new_role != ROLE_SUPER or not new_active):
+                remaining = db.execute(
+                    "SELECT COUNT(*) AS c FROM tolstoy_users WHERE role=? AND is_active=1 AND id!=?",
+                    (ROLE_SUPER, uid),
+                ).fetchone()["c"]
+                if remaining == 0:
+                    db.rollback()
+                    return False
+        sets += ["updated_by=?", "updated_at=?"]
+        args += [updated_by, now_iso(), uid]
+        db.execute(f"UPDATE tolstoy_users SET {', '.join(sets)} WHERE id=?", tuple(args))
+        db.commit()
+        return True
+    except Exception:
+        db.rollback()
+        raise
 
 
 def update_token_balance(uid, new_balance, updated_by):
@@ -95,6 +114,8 @@ def adjust_tokens(uid, delta, updated_by):
 
 
 def deduct_tokens(uid, cost, updated_by):
+    if cost <= 0:
+        return False
     db = get_db()
     cur = db.execute(
         "UPDATE tolstoy_users SET token_balance = token_balance - ?, updated_by=?, updated_at=? WHERE id=? AND token_balance >= ?",
@@ -121,11 +142,17 @@ def maybe_refill(uid):
     last = datetime.strptime(row["last_token_refill_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
     now = datetime.now(timezone.utc)
     if now - last >= timedelta(hours=REFILL_HOURS):
-        execute_db(
-            "UPDATE tolstoy_users SET token_balance = token_balance + ?, last_token_refill_at = ?, updated_at = ? WHERE id = ?",
-            (REFILL_AMOUNT, now_iso(), now_iso(), uid),
+        ts = now_iso()
+        db = get_db()
+        cur = db.execute(
+            "UPDATE tolstoy_users SET token_balance = token_balance + ?, last_token_refill_at = ?, updated_at = ? WHERE id = ? AND last_token_refill_at = ?",
+            (REFILL_AMOUNT, ts, ts, uid, row["last_token_refill_at"]),
         )
-        return row["token_balance"] + REFILL_AMOUNT
+        db.commit()
+        if cur.rowcount:
+            return row["token_balance"] + REFILL_AMOUNT
+        updated = get_user_by_id(uid)
+        return updated["token_balance"] if updated else None
     return row["token_balance"]
 
 

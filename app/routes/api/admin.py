@@ -127,9 +127,11 @@ def user_update(user_id):
     if not fields:
         return _fail("VALIDATION_ERROR", "No editable fields provided")
     try:
-        update_user(user_id, fields, session["user_id"])
+        ok = update_user(user_id, fields, session["user_id"], keep_last_super=True)
     except sqlite3.IntegrityError:
         return _fail("CONFLICT", "Username or phone already taken", 409)
+    if not ok:
+        return _fail("FORBIDDEN", "At least one active SUPER_ADMIN is required", 403)
     return jsonify({"success": True, "message": "Updated", "data": {}})
 
 
@@ -169,7 +171,8 @@ def user_role(user_id):
         return _fail("FORBIDDEN", "You cannot change your own role", 403)
     if target["role"] == "SUPER_ADMIN" and role != "SUPER_ADMIN" and target["is_active"] and _active_super_admins() <= 1:
         return _fail("FORBIDDEN", "At least one active SUPER_ADMIN is required", 403)
-    update_user(user_id, {"role": role}, session["user_id"])
+    if not update_user(user_id, {"role": role}, session["user_id"], keep_last_super=True):
+        return _fail("FORBIDDEN", "At least one active SUPER_ADMIN is required", 403)
     return jsonify({"success": True, "message": "Role updated", "data": {"role": role}})
 
 

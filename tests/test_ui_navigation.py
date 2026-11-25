@@ -94,6 +94,24 @@ def test_admin_sidebar_hides_assign_roles(client, ctx):
     assert 'href="/admin/settings"' not in html
 
 
+def test_sidebars_collapse_to_google_icon_rail(client, ctx):
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    admin = (root / "app/templates/admin/base_admin.html").read_text(encoding="utf-8")
+    user = (root / "app/templates/user/base_user.html").read_text(encoding="utf-8")
+    css = (root / "app/static/css/app.css").read_text(encoding="utf-8")
+    for html in (admin, user):
+        assert 'data-sidebar-collapse' in html
+        assert 'class="nav-label"' in html
+        assert "sessionStorage.getItem('tolstoy_sidebar_collapsed') === '1'" in html
+    assert '<svg' not in user
+    assert '<link href="https://fonts.googleapis.com/icon?family=Material+Icons"' in user
+    assert '.sidebar-collapsed .sidebar { width: var(--sidebar-collapsed-width);' in css
+    assert '.main-content { flex: 1; padding: var(--space-6); min-width: 0; height: 100vh; overflow-y: auto;' in css
+    assert 'position: sticky' not in css
+
+
 def test_assign_roles_page_has_search_input(client, ctx):
     from pathlib import Path
 

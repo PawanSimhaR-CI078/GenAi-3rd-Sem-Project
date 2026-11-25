@@ -1,3 +1,4 @@
+import sqlite3
 from flask import Blueprint, request, jsonify, session
 from app.db import get_db
 from app.models.user import (create_user, get_user_by_username, get_user_by_id,
@@ -21,7 +22,13 @@ def register():
         return jsonify({"success": False, "message": "Password too weak", "error": {"code": "VALIDATION_ERROR"}}), 400
     if get_user_by_username(data["username"]):
         return jsonify({"success": False, "message": "Username taken", "error": {"code": "CONFLICT"}}), 409
-    uid = create_user(data["username"], data["password"], data.get("display_name"), data.get("phone_number"), role="USER", created_by=None)
+    display_name = data.get("display_name")
+    if display_name is not None and (not isinstance(display_name, str) or len(display_name) > 80):
+        return jsonify({"success": False, "message": "Invalid display name", "error": {"code": "VALIDATION_ERROR"}}), 400
+    try:
+        uid = create_user(data["username"], data["password"], display_name, data.get("phone_number"), role="USER", created_by=None)
+    except sqlite3.IntegrityError:
+        return jsonify({"success": False, "message": "Phone number taken", "error": {"code": "CONFLICT"}}), 409
     return jsonify({"success": True, "message": "Registered", "data": {"user_id": uid}}), 201
 
 

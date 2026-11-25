@@ -1,4 +1,4 @@
-from app.db import query_db, execute_db
+from app.db import query_db, execute_db, get_db
 from app.models.user import now_iso
 
 
@@ -68,6 +68,17 @@ def update_story(sid, fields, updated_by):
     sets.append("updated_at=?")
     args += [updated_by, now_iso(), sid]
     execute_db(f"UPDATE tolstoy_stories SET {', '.join(sets)} WHERE id=?", tuple(args))
+
+
+def begin_generation(sid, updated_by):
+    """Claim a story for generation; fails if another request already claimed it."""
+    db = get_db()
+    cur = db.execute(
+        "UPDATE tolstoy_stories SET generation_status='processing', updated_by=?, updated_at=? WHERE id=? AND is_deleted=0 AND generation_status!='processing'",
+        (updated_by, now_iso(), sid),
+    )
+    db.commit()
+    return cur.rowcount > 0
 
 
 def soft_delete(sid, updated_by):

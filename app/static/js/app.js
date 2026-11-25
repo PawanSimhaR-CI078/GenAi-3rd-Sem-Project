@@ -65,6 +65,23 @@ window.fetch = async function (input, init) {
   else setupDrawer();
 })();
 
+// Icon-only sidebar rail, remembered for the tab across page loads.
+(function () {
+  const button = document.querySelector('[data-sidebar-collapse]');
+  if (!button) return;
+  const root = document.documentElement;
+  function setCollapsed(collapsed) {
+    root.classList.toggle('sidebar-collapsed', collapsed);
+    button.setAttribute('aria-expanded', String(!collapsed));
+    button.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+    button.querySelector('i').textContent = collapsed ? 'chevron_right' : 'chevron_left';
+    sessionStorage.setItem('tolstoy_sidebar_collapsed', collapsed ? '1' : '0');
+  }
+  button.addEventListener('click', () => setCollapsed(!root.classList.contains('sidebar-collapsed')));
+  // The class is already applied in <head>, so this only syncs the control state.
+  setCollapsed(root.classList.contains('sidebar-collapsed'));
+})();
+
 // Closing the tab clears sessionStorage, so a load without the marker ends the session.
 // shortcut: this also logs out a tab opened by hand while signed in, matching "close tab = sign out".
 (function () {

@@ -28,13 +28,13 @@ async function load(){
   el.innerHTML=stories.map(s=>`
     <div class="card">
       <div class="flex justify-between items-start mb-2">
-        <h3 class="card-title">${s.title}</h3>
-        <span class="badge ${s.story_status==='COMPLETED'?'badge-success':'badge-warning'}">${s.story_status}</span>
+        <h3 class="card-title">${esc(s.title)}</h3>
+        <span class="badge ${s.story_status==='COMPLETED'?'badge-success':'badge-warning'}">${esc(s.story_status)}</span>
       </div>
-      <p class="text-sm text-secondary mb-3">${(s.content||'').slice(0,140)}</p>
+      <p class="text-sm text-secondary mb-3">${esc((s.content||'').slice(0,140))}</p>
       <div class="flex gap-2">
         <a href="/stories/${s.id}" class="btn btn-secondary btn-sm">Open</a>
-        <span class="text-xs text-muted self-center">${s.generation_status}</span>
+        <span class="text-xs text-muted self-center">${esc(s.generation_status)}</span>
       </div>
     </div>`).join('');
 }
