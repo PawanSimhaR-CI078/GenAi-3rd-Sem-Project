@@ -1,0 +1,165 @@
+{% extends 'admin/base_admin.html' if session.get('role') in ('ADMIN', 'SUPER_ADMIN') else 'user/base_user.html' %}
+{% block title %}Welcome to TOLSTOY{% endblock %}
+{% block heading %}Welcome{% endblock %}
+{% block content %}
+<section class="welcome" aria-labelledby="welcome-title">
+  <div class="welcome-hero welcome-reveal">
+    <div class="welcome-hero__copy">
+      <span class="badge badge-primary welcome-hero__eyebrow">
+        <i class="material-icons" aria-hidden="true">auto_awesome</i>
+        Your creative space
+      </span>
+      <h1 id="welcome-title" class="welcome-title">Welcome back, {{ session.get('username', 'creator') }}</h1>
+      <p class="welcome-subtitle">Your next comic script is one idea away. Start fresh or pick up where you left off.</p>
+      <div class="welcome-actions">
+        {% if session.get('role') in ('ADMIN', 'SUPER_ADMIN') %}
+          {% if can('analytics') %}<a class="btn btn-primary btn-lg" href="/admin"><i class="material-icons" aria-hidden="true">dashboard</i>Open analytics</a>{% endif %}
+          {% if can('stories_admin') %}<a class="btn btn-secondary btn-lg" href="/admin/stories"><i class="material-icons" aria-hidden="true">auto_stories</i>Review stories</a>{% endif %}
+        {% else %}
+          <a class="btn btn-primary btn-lg" href="/stories/new"><i class="material-icons" aria-hidden="true">add</i>Create story</a>
+          <a class="btn btn-secondary btn-lg" href="/stories?status=EDITING"><i class="material-icons" aria-hidden="true">edit</i>My stories</a>
+        {% endif %}
+      </div>
+    </div>
+    <aside class="welcome-hero__art" aria-hidden="true">
+      <div class="script-mock">
+        <span class="script-mock__badge">SCRIPT PREVIEW</span>
+        <div class="script-mock__line">SCENE 01 · PANEL A</div>
+        <div class="script-mock__line">"Keep the lantern lit..."</div>
+        <div class="script-mock__line">NARRATION · PAGES 1 TO 3</div>
+      </div>
+    </aside>
+  </div>
+
+  <nav class="welcome-bento" aria-label="Quick actions">
+    {% if session.get('role') in ('ADMIN', 'SUPER_ADMIN') %}
+      {% if can('analytics') %}
+      <a class="quick-card" href="/admin">
+        <span class="quick-card__icon"><i class="material-icons" aria-hidden="true">dashboard</i></span>
+        <h2 class="quick-card__title">Analytics</h2>
+        <p class="quick-card__desc">See how the workspace is doing.</p>
+      </a>
+      {% endif %}
+      {% if can('users_view') %}
+      <a class="quick-card" href="/admin/users">
+        <span class="quick-card__icon"><i class="material-icons" aria-hidden="true">people</i></span>
+        <h2 class="quick-card__title">Users</h2>
+        <p class="quick-card__desc">Manage accounts and access.</p>
+      </a>
+      {% endif %}
+      {% if can('stories_admin') %}
+      <a class="quick-card" href="/admin/stories">
+        <span class="quick-card__icon"><i class="material-icons" aria-hidden="true">auto_stories</i></span>
+        <h2 class="quick-card__title">Stories</h2>
+        <p class="quick-card__desc">Review submitted scripts.</p>
+      </a>
+      {% endif %}
+      {% if can('system') %}
+      <a class="quick-card" href="/admin/system">
+        <span class="quick-card__icon"><i class="material-icons" aria-hidden="true">system_update</i></span>
+        <h2 class="quick-card__title">System control</h2>
+        <p class="quick-card__desc">Maintenance and offline state.</p>
+      </a>
+      {% endif %}
+    {% else %}
+      <a class="quick-card" href="/stories/new">
+        <span class="quick-card__icon"><i class="material-icons" aria-hidden="true">add</i></span>
+        <h2 class="quick-card__title">Create story</h2>
+        <p class="quick-card__desc">Start a fresh comic script.</p>
+      </a>
+      <a class="quick-card" href="/stories?status=EDITING">
+        <span class="quick-card__icon"><i class="material-icons" aria-hidden="true">edit</i></span>
+        <h2 class="quick-card__title">Keep editing</h2>
+        <p class="quick-card__desc">Pick up an unfinished draft.</p>
+      </a>
+      <a class="quick-card" href="/stories?status=COMPLETED">
+        <span class="quick-card__icon"><i class="material-icons" aria-hidden="true">check_circle</i></span>
+        <h2 class="quick-card__title">Completed</h2>
+        <p class="quick-card__desc">See your finished scripts.</p>
+      </a>
+      <a class="quick-card" href="/wallet">
+        <span class="quick-card__icon"><i class="material-icons" aria-hidden="true">account_balance_wallet</i></span>
+        <h2 class="quick-card__title">Token wallet</h2>
+        <p class="quick-card__desc">Check your balance and refills.</p>
+      </a>
+    {% endif %}
+  </nav>
+
+  <section class="workspace-strip" id="workspace" aria-labelledby="workspace-title" aria-busy="true">
+    <h2 id="workspace-title" class="sr-only">Your workspace</h2>
+    <div class="workspace-tile">
+      <span class="workspace-tile__label">{% if session.get('role') in ('ADMIN', 'SUPER_ADMIN') %}Users{% else %}Tokens{% endif %}</span>
+      <span class="workspace-tile__value" id="wsVal1">...</span>
+    </div>
+    <div class="workspace-tile">
+      <span class="workspace-tile__label">Stories</span>
+      <span class="workspace-tile__value" id="wsVal2">...</span>
+    </div>
+    <div class="workspace-tile">
+      <span class="workspace-tile__label">Editing</span>
+      <span class="workspace-tile__value" id="wsVal3">...</span>
+    </div>
+    <div class="workspace-tile">
+      <span class="workspace-tile__label">{% if session.get('role') in ('ADMIN', 'SUPER_ADMIN') %}Success rate{% else %}Completed{% endif %}</span>
+      <span class="workspace-tile__value" id="wsVal4">...</span>
+    </div>
+    <a class="workspace-recent" id="wsRecent" href="{% if session.get('role') in ('ADMIN', 'SUPER_ADMIN') %}/admin{% else %}/stories{% endif %}">
+      <i class="material-icons" aria-hidden="true">arrow_forward</i>
+      <span id="wsRecentLabel">Loading your workspace...</span>
+    </a>
+  </section>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+(function(){
+  const isAdmin = {{ 'true' if session.get('role') in ('ADMIN', 'SUPER_ADMIN') else 'false' }};
+  const strip = document.getElementById('workspace');
+  const put = function(id, value){ const el = document.getElementById(id); if(el) el.textContent = value; };
+  const fail = function(){ ['wsVal1','wsVal2','wsVal3','wsVal4'].forEach(function(id){ put(id, 'n/a'); }); };
+
+  async function load(){
+    if(isAdmin){
+      const j = await fetch('/api/v1/admin/analytics/summary?range=30', {credentials:'same-origin'}).then(function(r){ return r.json(); });
+      if(!j.success){ fail(); return; }
+      const d = j.data;
+      put('wsVal1', d.users.total);
+      put('wsVal2', d.stories.total);
+      put('wsVal3', d.stories.editing);
+      put('wsVal4', d.stories.success_rate + '%');
+      if(d.stories.failed){
+        put('wsRecentLabel', d.stories.failed + ' scripts need attention');
+        const link = document.getElementById('wsRecent');
+        if(link) link.href = '/admin/stories';
+      } else {
+        put('wsRecentLabel', 'All scripts are on track');
+      }
+      return;
+    }
+
+    const results = await Promise.allSettled([
+      fetch('/api/v1/auth/me', {credentials:'same-origin'}).then(function(r){ return r.json(); }),
+      fetch('/api/v1/stories', {credentials:'same-origin'}).then(function(r){ return r.json(); })
+    ]);
+    if(results[0].status === 'fulfilled' && results[0].value.success) put('wsVal1', results[0].value.data.token_balance);
+    if(results[1].status !== 'fulfilled' || !results[1].value.success){
+      put('wsVal2','n/a'); put('wsVal3','n/a'); put('wsVal4','n/a');
+      return;
+    }
+    const list = results[1].value.data.stories || [];
+    put('wsVal2', list.length === 20 ? '20+' : list.length);
+    put('wsVal3', list.filter(function(s){ return s.story_status === 'EDITING'; }).length);
+    put('wsVal4', list.filter(function(s){ return s.story_status === 'COMPLETED'; }).length);
+    if(list.length){
+      put('wsRecentLabel', 'Recent draft: ' + list[0].title);
+      const link = document.getElementById('wsRecent');
+      if(link) link.href = '/stories/' + list[0].id;
+    } else {
+      put('wsRecentLabel', 'No stories yet. Create your first script.');
+    }
+  }
+
+  load().catch(fail).then(function(){ if(strip) strip.removeAttribute('aria-busy'); });
+})();
+</script>
+{% endblock %}

@@ -11,6 +11,15 @@ def _guard():
     return False
 
 
+@bp.route("/home")
+@login_required
+def home_page():
+    if session.get("role") in ("ADMIN", "SUPER_ADMIN"):
+        return redirect(url_for("admin_pages.admin_home"))
+    if _guard(): return redirect(url_for("public.maintenance_page"))
+    return render_template("welcome.html")
+
+
 @bp.route("/dashboard")
 @login_required
 def dashboard():

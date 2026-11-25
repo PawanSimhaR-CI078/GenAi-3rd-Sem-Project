@@ -127,3 +127,82 @@ def test_role_access_has_no_embedded_assignment(client, ctx):
     html = (Path(__file__).resolve().parents[1] / "app/templates/admin/roles.html").read_text(encoding="utf-8")
     assert 'id="tbody"' not in html
     assert ">Assign roles<" not in html
+
+
+def test_welcome_page_requires_login(client):
+    r = client.get("/home")
+    assert r.status_code == 302
+    assert "/login" in r.headers["Location"]
+
+
+def test_welcome_page_links_dashboards_by_role(client, ctx):
+    admin = _make_user(ctx, "welcome_super", "SUPER_ADMIN")
+    user = _make_user(ctx, "welcome_user")
+
+    _login(client, user, "USER")
+    html = client.get("/home").get_data(as_text=True)
+    assert 'href="/dashboard"' in html
+    assert 'href="/stories/new"' in html
+    assert 'href="/admin"' not in html
+
+    _login(client, admin, "SUPER_ADMIN")
+    html = client.get("/admin/home").get_data(as_text=True)
+    assert 'href="/admin"' in html
+    assert 'href="/admin/users"' in html
+    assert 'data-auth="1"' in html
+
+
+def test_admin_home_redirects_from_shared_home(client, ctx):
+    admin = _make_user(ctx, "welcome_redirect_super", "SUPER_ADMIN")
+    _login(client, admin, "SUPER_ADMIN")
+    r = client.get("/home")
+    assert r.status_code == 302
+    assert r.headers["Location"].endswith("/admin/home")
+
+
+def test_welcome_page_is_auth_scoped(client, ctx):
+    user = _make_user(ctx, "welcome_tab_user")
+    _login(client, user, "USER")
+    assert 'data-auth="1"' in client.get("/home").get_data(as_text=True)
+
+
+def test_welcome_page_survives_maintenance_for_admin(client, ctx):
+    from app.models.system_settings import set_setting
+
+    admin = _make_user(ctx, "welcome_maint_super", "SUPER_ADMIN")
+    user = _make_user(ctx, "welcome_maint_user")
+    with ctx:
+        set_setting("maintenance_mode", True, "boolean")
+    try:
+        _login(client, admin, "SUPER_ADMIN")
+        assert client.get("/home", follow_redirects=True).status_code == 200
+        _login(client, user, "USER")
+        r = client.get("/home")
+        assert r.status_code == 302
+        assert "/maintenance" in r.headers["Location"]
+    finally:
+        with ctx:
+            set_setting("maintenance_mode", False, "boolean")
+
+
+def test_login_forms_redirect_to_welcome_page():
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    login = (root / "app/templates/public/login.html").read_text(encoding="utf-8")
+    admin_login = (root / "app/templates/public/admin_login.html").read_text(encoding="utf-8")
+    for html in (login, admin_login):
+        assert "sessionStorage.setItem('tolstoy_tab','1')" in html
+        assert "'/admin/home'" in html
+    assert "'/home'" in login
+    assert "'/dashboard'" not in login
+    assert "window.location='/admin/home'" in admin_login
+
+
+def test_welcome_page_has_workspace_tiles(client, ctx):
+    user = _make_user(ctx, "welcome_tiles_user")
+    _login(client, user, "USER")
+    html = client.get("/home").get_data(as_text=True)
+    for tile_id in ("wsVal1", "wsVal2", "wsVal3", "wsVal4", "wsRecent", "workspace"):
+        assert f'id="{tile_id}"' in html
+    assert "aria-busy=\"true\"" in html

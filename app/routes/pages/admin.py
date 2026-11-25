@@ -12,6 +12,13 @@ def admin_dashboard():
     return render_template("admin/dashboard.html")
 
 
+@bp.route("/admin/home")
+@login_required
+@admin_required
+def admin_home():
+    return render_template("welcome.html")
+
+
 @bp.route("/admin/users")
 @login_required
 @admin_required

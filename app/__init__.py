@@ -6,7 +6,7 @@ from app.extensions import csrf
 from app.db import close_db, init_db
 
 _MAINTENANCE_ALLOW = {
-    "/maintenance", "/admin/login", "/api/v1/auth/admin/login",
+    "/maintenance", "/home", "/admin/login", "/api/v1/auth/admin/login",
     "/api/v1/auth/logout", "/api/v1/auth/csrf", "/api/v1/auth/me",
     "/favicon.ico",
 }

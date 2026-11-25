@@ -44,6 +44,9 @@ rec("POST invalid register 400", r.status_code == 400, r.status_code)
 r = s.post(BASE + "/api/v1/auth/user/login", json={"username": u, "password": "password123"})
 rec("POST user login 200", r.status_code == 200, r.text[:100])
 
+r = s.get(BASE + "/home")
+rec("GET /home after user login 200", r.status_code == 200 and "Welcome back" in r.text, r.status_code)
+
 r = s.post(BASE + "/api/v1/auth/user/login", json={"username": u, "password": "wrongpass"})
 rec("POST bad password 401", r.status_code == 401, r.status_code)
 
@@ -106,6 +109,9 @@ a = session()
 r = a.post(BASE + "/api/v1/auth/admin/login", json={"username": "Pawan Simha R", "password": "iamsuperadmin"})
 rec("Admin login 200", r.status_code == 200, r.text[:100])
 
+r = a.get(BASE + "/admin/home")
+rec("GET /admin/home after admin login 200", r.status_code == 200 and "Welcome back" in r.text, r.status_code)
+
 r = a.get(BASE + "/api/v1/admin/users")
 rec("Admin users list", r.status_code == 200 and len(jget(r)["data"]["users"]) > 0, r.status_code)
 uid = jget(a.get(BASE + "/api/v1/admin/users"))["data"]["users"][0]["id"]
@@ -157,6 +163,8 @@ r = s.get(BASE + "/api/v1/stories")
 rec("User blocked in maintenance 503", r.status_code == 503, r.status_code)
 r = a.get(BASE + "/api/v1/admin/users")
 rec("Admin allowed in maintenance", r.status_code == 200, r.status_code)
+r = a.get(BASE + "/home", allow_redirects=False)
+rec("Admin welcome reachable in maintenance", r.status_code == 302 and "/admin/home" in r.headers.get("Location", ""), r.status_code)
 r = a.patch(BASE + "/api/v1/admin/maintenance", json={"enabled": False, "password": "iamsuperadmin"})
 rec("Maintenance disable 200", r.status_code == 200, r.status_code)
 
