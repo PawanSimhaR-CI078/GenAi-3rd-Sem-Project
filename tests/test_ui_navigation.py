@@ -99,6 +99,8 @@ def test_assign_roles_page_has_search_input(client, ctx):
 
     html = (Path(__file__).resolve().parents[1] / "app/templates/admin/assign_roles.html").read_text(encoding="utf-8")
     assert 'id="search"' in html
+    assert 'id="search" class="form-input mb-3" style="max-width:260px;" placeholder="Search users" autocomplete="off"' in html
+    assert 'type="password" class="form-input" placeholder="••••••••" autocomplete="new-password"' in html
 
 
 def test_role_access_has_no_embedded_assignment(client, ctx):
