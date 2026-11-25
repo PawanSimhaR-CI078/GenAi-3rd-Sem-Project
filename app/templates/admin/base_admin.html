@@ -23,8 +23,9 @@
       {% if can('analytics') %}<a href="/admin" class="nav-link {{ 'active' if request.path == '/admin' }}"><i class="material-icons">dashboard</i> Analytics</a>{% endif %}
       {% if can('users_view') %}<a href="/admin/users" class="nav-link {{ 'active' if request.path == '/admin/users' }}"><i class="material-icons">people</i> User Editing</a>{% endif %}
       {% if can('roles_view') %}<a href="/admin/roles" class="nav-link {{ 'active' if request.path == '/admin/roles' }}"><i class="material-icons">security</i> Role Access</a>{% endif %}
-      {% if can('database') %}<a href="/admin/database" class="nav-link {{ 'active' if request.path == '/admin/database' }}"><i class="material-icons">database</i> Live Database</a>{% endif %}
-      {% if can('stories_admin') %}<a href="/admin/stories" class="nav-link {{ 'active' if request.path == '/admin/stories' }}"><i class="material-icons">story</i> Stories</a>{% endif %}
+      {% if can('roles_manage') %}<a href="/admin/assign-roles" class="nav-link {{ 'active' if request.path == '/admin/assign-roles' }}"><i class="material-icons">how_to_reg</i> Assign Roles</a>{% endif %}
+      {% if can('database') %}<a href="/admin/database" class="nav-link {{ 'active' if request.path == '/admin/database' }}"><i class="material-icons">storage</i> Live Database</a>{% endif %}
+      {% if can('stories_admin') %}<a href="/admin/stories" class="nav-link {{ 'active' if request.path == '/admin/stories' }}"><i class="material-icons">auto_stories</i> Stories</a>{% endif %}
       {% if can('settings') %}<a href="/admin/settings" class="nav-link {{ 'active' if request.path == '/admin/settings' }}"><i class="material-icons">settings</i> Settings</a>{% endif %}
       {% if can('system') %}<a href="/admin/system" class="nav-link {{ 'active' if request.path == '/admin/system' }}"><i class="material-icons">system_update</i> System Control</a>{% endif %}
     </nav>

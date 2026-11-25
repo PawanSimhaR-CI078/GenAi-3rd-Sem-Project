@@ -60,3 +60,50 @@ def test_sidebar_icons_sized_and_admin_active_scoped(client, ctx):
     admin = _make_user(ctx, "sidebar_super", "SUPER_ADMIN")
     _login(client, admin, "SUPER_ADMIN")
     assert 'class="sidebar sidebar-admin"' in client.get("/admin").get_data(as_text=True)
+
+
+def test_admin_sidebar_icons_are_valid_material_ligatures():
+    import re
+    from pathlib import Path
+
+    html = (Path(__file__).resolve().parents[1] / "app/templates/admin/base_admin.html").read_text(encoding="utf-8")
+    icons = re.findall(r'<i class="material-icons">([^<]+)</i>', html)
+    assert icons
+    assert set(icons) <= {
+        "dashboard", "people", "security", "storage", "auto_stories",
+        "how_to_reg", "settings", "system_update",
+    }
+
+
+def test_super_admin_sidebar_lists_all_eight_admin_pages(client, ctx):
+    admin = _make_user(ctx, "nav_all_super", "SUPER_ADMIN")
+    _login(client, admin, "SUPER_ADMIN")
+
+    html = client.get("/admin").get_data(as_text=True)
+    for path in ("/admin", "/admin/users", "/admin/roles", "/admin/assign-roles",
+                 "/admin/database", "/admin/stories", "/admin/settings", "/admin/system"):
+        assert f'href="{path}"' in html, path
+
+
+def test_admin_sidebar_hides_assign_roles(client, ctx):
+    admin = _make_user(ctx, "nav_admin_limited", "ADMIN")
+    _login(client, admin, "ADMIN")
+
+    html = client.get("/admin").get_data(as_text=True)
+    assert 'href="/admin/assign-roles"' not in html
+    assert 'href="/admin/settings"' not in html
+
+
+def test_assign_roles_page_has_search_input(client, ctx):
+    from pathlib import Path
+
+    html = (Path(__file__).resolve().parents[1] / "app/templates/admin/assign_roles.html").read_text(encoding="utf-8")
+    assert 'id="search"' in html
+
+
+def test_role_access_has_no_embedded_assignment(client, ctx):
+    from pathlib import Path
+
+    html = (Path(__file__).resolve().parents[1] / "app/templates/admin/roles.html").read_text(encoding="utf-8")
+    assert 'id="tbody"' not in html
+    assert ">Assign roles<" not in html

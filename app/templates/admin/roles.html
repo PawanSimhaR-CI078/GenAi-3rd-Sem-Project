@@ -13,24 +13,12 @@
   </div>
   <button class="btn btn-primary btn-sm mt-3" id="saveMatrix" onclick="saveMatrix()" style="display:none;">Save permissions</button>
 </div>
-
-<div class="card">
-  <h3 class="card-title mb-3">Assign roles</h3>
-  <input id="search" class="form-input mb-3" style="max-width:260px;" placeholder="Search users">
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>ID</th><th>Username</th><th>Current role</th><th>New role</th><th>Admin password</th><th></th></tr></thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
-  <div id="roleMsg" class="mt-2 text-sm"></div>
-</div>
+<p class="text-sm text-secondary">Assign roles from the <a href="/admin/assign-roles">Assign Roles</a> page.</p>
 {% endblock %}
 
 {% block scripts %}
 <script>
 let matrix=null, editable=false, caps={}, locked=[];
-const me={{ session.get('user_id')|tojson }};
 const roleKeys=['USER','ADMIN','SUPER_ADMIN'];
 async function loadMatrix(){
   const j=await (await fetch('/api/v1/admin/roles/permissions',{credentials:'same-origin'})).json();
@@ -52,34 +40,6 @@ async function saveMatrix(){
   const r=await fetch('/api/v1/admin/roles/permissions',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({permissions:out}),credentials:'same-origin'});
   const j=await r.json(); showToast(j.message,j.success?'success':'error'); loadMatrix();
 }
-async function load(){
-  const s=document.getElementById('search').value;
-  const j=await (await fetch('/api/v1/admin/users?search='+encodeURIComponent(s),{credentials:'same-origin'})).json();
-  if(!j.success) return;
-  document.getElementById('tbody').innerHTML=j.data.users.map(u=>{
-    const opts=roleKeys.map(r=>'<option'+(r===u.role?' selected':'')+'>'+r+'</option>').join('');
-    const you=u.id===me?' <span class="text-muted">(you)</span>':'';
-    const isSelf=u.id===me;
-    // SUPER_ADMIN cannot change his own role - he is the master controller
-    const disabled=isSelf&&u.role==='SUPER_ADMIN'?' disabled':'';
-    const button=isSelf&&u.role==='SUPER_ADMIN'
-      ? '<span class="text-muted">Master controller</span>'
-      : '<button class="btn btn-primary btn-sm" onclick="changeRole('+u.id+')">Apply</button>';
-    return '<tr><td>'+u.id+'</td><td>'+esc(u.username)+you+'</td><td><span class="badge badge-primary">'+esc(u.role)+'</span></td>'+
-      '<td><select id="role-'+u.id+'" class="form-select"'+disabled+'>'+opts+'</select></td>'+
-      '<td><input id="pw-'+u.id+'" type="password" class="form-input" placeholder="••••••••"></td>'+
-      '<td>'+button+'</td></tr>';
-  }).join('');
-}
-async function changeRole(id){
-  const role=document.getElementById('role-'+id).value;
-  const password=document.getElementById('pw-'+id).value;
-  const r=await fetch('/api/v1/admin/users/'+id+'/role',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({role,password}),credentials:'same-origin'});
-  const j=await r.json();
-  const m=document.getElementById('roleMsg'); m.textContent=j.message; m.className='mt-2 text-sm '+(j.success?'text-[var(--color-success)]':'form-error');
-  if(j.success){ load(); loadMatrix(); }
-}
-document.getElementById('search').addEventListener('input',load);
-loadMatrix(); load();
+loadMatrix();
 </script>
 {% endblock %}
