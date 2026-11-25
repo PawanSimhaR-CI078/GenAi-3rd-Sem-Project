@@ -159,6 +159,32 @@ def average_stories_per_user():
     return round(r["a"], 2) if r else 0
 
 
+def story_attribute_counts():
+    rows = query_db(
+        """SELECT 'language' AS attribute, COALESCE(NULLIF(TRIM(language), ''), '(unspecified)') AS value, COUNT(*) AS c
+             FROM tolstoy_stories WHERE is_deleted=0 GROUP BY 2
+           UNION ALL
+           SELECT 'audience', COALESCE(NULLIF(TRIM(target_audience), ''), '(unspecified)'), COUNT(*)
+             FROM tolstoy_stories WHERE is_deleted=0 GROUP BY 2
+           UNION ALL
+           SELECT 'length', COALESCE(NULLIF(TRIM(desired_length), ''), '(unspecified)'), COUNT(*)
+             FROM tolstoy_stories WHERE is_deleted=0 GROUP BY 2
+           UNION ALL
+           SELECT 'gender', COALESCE(NULLIF(TRIM(character_gender), ''), '(unspecified)'), COUNT(*)
+             FROM tolstoy_stories WHERE is_deleted=0 GROUP BY 2
+           ORDER BY 1, 3 DESC, 2"""
+    )
+    return [{"label": f"{r['attribute']}: {r['value']}", "count": r["c"]} for r in rows]
+
+
+def recent_failed_generations(limit=5):
+    return query_db(
+        """SELECT s.id, s.title, u.username, s.created_at
+             FROM tolstoy_stories s JOIN tolstoy_users u ON u.id=s.user_id
+            WHERE s.is_deleted=0 AND s.generation_status='failed'
+            ORDER BY s.id DESC LIMIT ?""", (limit,))
+
+
 def recent_stories(limit=5):
     return query_db(
         """SELECT s.id, s.title, s.story_status, s.generation_status, s.created_at, u.username

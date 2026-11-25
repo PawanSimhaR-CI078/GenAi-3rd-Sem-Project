@@ -118,7 +118,7 @@ r = a.get(BASE + "/api/v1/admin/analytics/summary")
 rec("Analytics summary", r.status_code == 200 and "users" in jget(r)["data"], r.status_code)
 r = a.get(BASE + "/api/v1/admin/analytics/db-health")
 rec("Analytics DB health", r.status_code == 200 and "tables" in jget(r)["data"], r.status_code)
-for key in ["users_growth", "users_role", "stories_status", "generation_status", "stories_per_day", "tokens_per_day", "gemini_usage", "top_users"]:
+for key in ["users_growth", "users_role", "stories_status", "generation_status", "stories_per_day", "tokens_per_day", "gemini_usage", "top_users", "story_mix"]:
     r = a.get(BASE + "/api/v1/admin/analytics/charts", params={"chart": key})
     rec(f"Chart data {key}", r.status_code == 200 and "labels" in jget(r)["data"], r.status_code)
 r = a.get(BASE + "/api/v1/admin/database/tolstoy_users")

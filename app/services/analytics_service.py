@@ -1,12 +1,12 @@
 from app.db import query_db
 from app.models.user import (count_users, count_active_users, count_by_role, role_counts,
                              registration_trend, token_totals, token_balance_buckets,
-                             recent_users)
+                             recent_users, low_balance_users)
 from app.models.story import (count_stories, count_by_status, count_by_gen_status,
                               tokens_consumed_total, gemini_usage_totals, top_users_by_stories,
                               stories_per_day, count_deleted, generation_status_counts,
                               trend_by_day, tokens_trend, average_stories_per_user,
-                              recent_stories)
+                              recent_stories, story_attribute_counts, recent_failed_generations)
 
 TABLES = ("tolstoy_users", "tolstoy_stories", "tolstoy_system_settings")
 
@@ -31,6 +31,7 @@ def summary(range_days=30):
             "inactive": count_users() - count_active_users(),
             "by_role": role_counts(),
             "new_in_range": sum(r["c"] for r in registration_trend(days)),
+            "low_balance": [dict(r) for r in low_balance_users(5)],
         },
         "stories": {
             "total": count_stories(),
@@ -41,6 +42,8 @@ def summary(range_days=30):
             "by_generation": gen,
             "success_rate": round(100.0 * gen.get("succeeded", 0) / max(1, count_stories()), 1),
             "new_in_range": sum(r["c"] for r in trend_by_day(days)),
+            "failed": gen.get("failed", 0),
+            "recent_failures": [dict(r) for r in recent_failed_generations(5)],
         },
         "tokens": {
             "in_circulation": tokens["total"],
@@ -87,6 +90,9 @@ def chart_data(key, range_days=30):
     if key == "top_users":
         rows = top_users_by_stories(8)
         return {"labels": [r["username"] for r in rows], "data": [r["c"] for r in rows]}
+    if key == "story_mix":
+        rows = story_attribute_counts()
+        return {"labels": [r["label"] for r in rows], "data": [r["count"] for r in rows]}
     return {"labels": [], "data": []}
 
 

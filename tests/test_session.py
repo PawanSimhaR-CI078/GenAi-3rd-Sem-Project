@@ -51,4 +51,4 @@ def test_analytics_charts_have_bounded_container(client, ctx):
     _login(client, _make_user(ctx, "chart_super", "SUPER_ADMIN"), "SUPER_ADMIN")
 
     html = client.get("/admin").get_data(as_text=True)
-    assert html.count('class="chart-box"') == 9
+    assert html.count('class="chart-box"') == 10

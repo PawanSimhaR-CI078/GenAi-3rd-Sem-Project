@@ -221,3 +221,39 @@ tr:hover td { background: var(--color-bg); }
 .status-box { padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-bg-secondary); }
 .status-online { font-size: 20px; font-weight: 800; color: var(--color-success); }
 .status-offline { font-size: 20px; font-weight: 800; color: var(--color-error); }
+
+/* Analytics dashboard */
+.analytics-dashboard .card, .analytics-dashboard .stat-card { border-radius: var(--radius-xl); min-width: 0; }
+.analytics-dashboard .chart-box { height: 240px; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-bg); overflow: hidden; }
+.kpi-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-4); }
+.kpi-grid > .stat-card { grid-column: span 3; }
+.analytics-bento { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-4); grid-template-areas:
+  "growth growth growth growth growth role role role status status status status"
+  "dist dist dist dist gen gen gen gen gemini gemini gemini gemini"
+  "mix mix mix mix mix mix mix mix mix mix mix mix"
+  "stories-day stories-day stories-day stories-day stories-day stories-day tokens-day tokens-day tokens-day tokens-day tokens-day tokens-day"
+  "top-users top-users top-users top-users db-health db-health db-health db-health watchlist watchlist watchlist watchlist"
+  "recent-users recent-users recent-users recent-users recent-stories recent-stories recent-stories recent-stories recent-stories recent-stories recent-stories recent-stories"; }
+.analytics-bento > .bento-panel { min-width: 0; }
+.bento--growth { grid-area: growth; } .bento--role { grid-area: role; } .bento--status { grid-area: status; }
+.bento--dist { grid-area: dist; } .bento--gen { grid-area: gen; } .bento--gemini { grid-area: gemini; }
+.bento--mix { grid-area: mix; } .bento--stories-day { grid-area: stories-day; } .bento--tokens-day { grid-area: tokens-day; }
+.bento--top-users { grid-area: top-users; } .bento--db-health { grid-area: db-health; } .bento--watchlist { grid-area: watchlist; }
+.bento--recent-users { grid-area: recent-users; } .bento--recent-stories { grid-area: recent-stories; }
+.db-health-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.db-metric-tile { border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-bg); padding: var(--space-2); }
+@media (max-width: 1100px) {
+  .kpi-grid > .stat-card { grid-column: span 6; }
+  .analytics-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: none; }
+  .analytics-bento > .bento-panel { grid-area: auto; }
+  .analytics-bento > .bento-panel--wide { grid-column: 1 / -1; }
+  .db-health-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .kpi-grid > .stat-card { grid-column: auto; }
+  .analytics-bento { grid-template-columns: 1fr; }
+  .analytics-bento > .bento-panel--wide { grid-column: auto; }
+  .db-health-grid { grid-template-columns: 1fr; }
+  .analytics-dashboard .chart-box { height: 220px; }
+}

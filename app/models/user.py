@@ -208,6 +208,14 @@ def token_balance_buckets():
     return [{"label": r["bucket"], "count": r["c"]} for r in rows]
 
 
+def low_balance_users(limit=5, threshold=2):
+    # shortcut: threshold duplicated from token_totals(), keep both in sync.
+    return query_db(
+        "SELECT username, token_balance FROM tolstoy_users WHERE is_active=1 AND token_balance<=? ORDER BY token_balance ASC, id DESC LIMIT ?",
+        (threshold, limit),
+    )
+
+
 def recent_users(limit=5):
     return query_db(
         "SELECT id, username, role, is_active, token_balance, created_at FROM tolstoy_users ORDER BY id DESC LIMIT ?",

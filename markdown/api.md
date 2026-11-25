@@ -163,12 +163,15 @@ for ADMIN.
 ### GET /api/v1/admin/analytics/summary
 
 - Query: `range` (7, 30, 90, 36500 = all).
-- Returns grouped objects: `users`, `stories`, `tokens`, `system`.
+- Returns grouped objects: `users`, `stories`, `tokens`, `system`. `users.low_balance` and
+  `stories.recent_failures` provide short watchlists (all-time).
 
 ### GET /api/v1/admin/analytics/charts
 
 - Query: `chart` (`users_growth`, `users_role`, `token_distribution`, `stories_status`,
-  `generation_status`, `stories_per_day`, `tokens_per_day`, `gemini_usage`, `top_users`), `range`.
+  `generation_status`, `stories_per_day`, `tokens_per_day`, `gemini_usage`, `top_users`,
+  `story_mix`), `range`.
+- `story_mix` groups language, audience, length and character gender across all non-deleted stories.
 
 ### GET /api/v1/admin/analytics/db-health
 

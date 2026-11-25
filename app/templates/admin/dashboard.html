@@ -2,48 +2,82 @@
 {% block title %}Analytics — Admin{% endblock %}
 {% block heading %}Analytics Dashboard{% endblock %}
 {% block content %}
-<div class="flex items-center justify-between mb-4">
-  <div class="text-sm text-muted" id="updated">Loading…</div>
-  <div class="flex gap-2">
-    <select id="range" class="form-select" style="max-width:130px;">
-      <option value="7">7 days</option><option value="30" selected>30 days</option>
-      <option value="90">90 days</option><option value="36500">All time</option>
-    </select>
-    <button class="btn btn-secondary btn-sm" onclick="loadAll()">Refresh</button>
-  </div>
-</div>
-
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4" id="kpis"></div>
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="kpis2"></div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-  <div class="card"><h3 class="card-title mb-3">User growth</h3><div class="chart-box"><canvas id="c1"></canvas></div></div>
-  <div class="card"><h3 class="card-title mb-3">Users by role</h3><div class="chart-box"><canvas id="c2"></canvas></div></div>
-  <div class="card"><h3 class="card-title mb-3">Token balance distribution</h3><div class="chart-box"><canvas id="c3"></canvas></div></div>
-  <div class="card"><h3 class="card-title mb-3">Stories by status</h3><div class="chart-box"><canvas id="c4"></canvas></div></div>
-  <div class="card"><h3 class="card-title mb-3">Generation outcomes</h3><div class="chart-box"><canvas id="c5"></canvas></div></div>
-  <div class="card"><h3 class="card-title mb-3">Stories created per day</h3><div class="chart-box"><canvas id="c6"></canvas></div></div>
-  <div class="card"><h3 class="card-title mb-3">Tokens consumed per day</h3><div class="chart-box"><canvas id="c7"></canvas></div></div>
-  <div class="card"><h3 class="card-title mb-3">Top users by stories</h3><div class="chart-box"><canvas id="c8"></canvas></div></div>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-  <div class="card md:col-span-2">
-    <div class="flex justify-between items-center mb-3">
-      <h3 class="card-title mb-0">Complete database overview</h3>
-      <button class="btn btn-ghost btn-sm" onclick="runIntegrity()">Run integrity check</button>
+<div class="analytics-dashboard">
+  <div class="flex items-center justify-between mb-4">
+    <div class="text-sm text-muted" id="updated">Loading…</div>
+    <div class="flex gap-2">
+      <select id="range" class="form-select" style="max-width:130px;">
+        <option value="7">7 days</option><option value="30" selected>30 days</option>
+        <option value="90">90 days</option><option value="36500">All time</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="loadAll()">Refresh</button>
     </div>
-    <div id="dbhealth" class="text-sm"></div>
-    <div id="integrity" class="text-sm mt-2"></div>
   </div>
-  <div class="card">
-    <h3 class="card-title mb-3">Gemini usage</h3><div class="chart-box"><canvas id="c9"></canvas></div>
-  </div>
-</div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <div class="card"><h3 class="card-title mb-3">Recent signups</h3><div id="recentUsers" class="text-sm"></div></div>
-  <div class="card"><h3 class="card-title mb-3">Recent stories</h3><div id="recentStories" class="text-sm"></div></div>
+  <div class="kpi-grid mb-4" id="kpis"></div>
+
+  <div class="analytics-bento mb-6">
+    <div class="card bento-panel bento--growth">
+      <h3 class="card-title mb-3">User growth</h3>
+      <div class="chart-box"><canvas id="c1"></canvas></div>
+    </div>
+    <div class="card bento-panel bento--role">
+      <h3 class="card-title mb-3">Users by role</h3>
+      <div class="chart-box"><canvas id="c2"></canvas></div>
+    </div>
+    <div class="card bento-panel bento--status">
+      <h3 class="card-title mb-3">Stories by status</h3>
+      <div class="chart-box"><canvas id="c4"></canvas></div>
+    </div>
+    <div class="card bento-panel bento--dist">
+      <h3 class="card-title mb-3">Token balance distribution</h3>
+      <div class="chart-box"><canvas id="c3"></canvas></div>
+    </div>
+    <div class="card bento-panel bento--gen">
+      <h3 class="card-title mb-3">Generation outcomes</h3>
+      <div class="chart-box"><canvas id="c5"></canvas></div>
+    </div>
+    <div class="card bento-panel bento--gemini">
+      <h3 class="card-title mb-3">Gemini usage</h3>
+      <div class="chart-box"><canvas id="c9"></canvas></div>
+    </div>
+    <div class="card bento-panel bento--mix bento-panel--wide">
+      <h3 class="card-title mb-3">Story mix <span class="text-xs text-muted">· all time</span></h3>
+      <div class="chart-box"><canvas id="c10"></canvas></div>
+    </div>
+    <div class="card bento-panel bento--stories-day bento-panel--wide">
+      <h3 class="card-title mb-3">Stories created per day</h3>
+      <div class="chart-box"><canvas id="c6"></canvas></div>
+    </div>
+    <div class="card bento-panel bento--tokens-day bento-panel--wide">
+      <h3 class="card-title mb-3">Tokens consumed per day</h3>
+      <div class="chart-box"><canvas id="c7"></canvas></div>
+    </div>
+    <div class="card bento-panel bento--top-users">
+      <h3 class="card-title mb-3">Top users by stories</h3>
+      <div class="chart-box"><canvas id="c8"></canvas></div>
+    </div>
+    <div class="card bento-panel bento--db-health">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="card-title mb-0">Complete database overview</h3>
+        <button class="btn btn-ghost btn-sm" onclick="runIntegrity()">Run integrity check</button>
+      </div>
+      <div id="dbhealth" class="text-sm"></div>
+      <div id="integrity" class="text-sm mt-2"></div>
+    </div>
+    <div class="card bento-panel bento--watchlist">
+      <h3 class="card-title mb-3">Watchlist <span class="text-xs text-muted">· all time</span></h3>
+      <div id="watchlist" class="text-sm"></div>
+    </div>
+    <div class="card bento-panel bento--recent-users">
+      <h3 class="card-title mb-3">Recent signups</h3>
+      <div id="recentUsers" class="text-sm"></div>
+    </div>
+    <div class="card bento-panel bento--recent-stories bento-panel--wide">
+      <h3 class="card-title mb-3">Recent stories</h3>
+      <div id="recentStories" class="text-sm"></div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -68,18 +102,25 @@ async function loadAll(){
       card('Total stories',d.stories.total,`${d.stories.new_in_range} new`),
       card('Tokens in circulation',d.tokens.in_circulation,'internal credits'),
       card('Generation success',d.stories.success_rate+'%',`${d.stories.by_generation.succeeded||0} succeeded`),
-    ].join('');
-    document.getElementById('kpis2').innerHTML=[
       card('New users',d.users.new_in_range,'selected range'),
       card('Editing',d.stories.editing,'stories'),
       card('Completed',d.stories.completed,'stories'),
       card('Avg tokens / user',d.tokens.average_balance,`${d.tokens.low_balance_users} low balance`),
+      card('Inactive users',d.users.inactive||0,'accounts blocked'),
+      card('Soft-deleted stories',d.stories.deleted||0,'excluded from totals'),
+      card('Tokens consumed',d.tokens.consumed||0,`${d.tokens.consumed_in_range||0} in range`),
+      card('Gemini tokens',(d.tokens.gemini_input||0)+(d.tokens.gemini_output||0),`${d.tokens.gemini_input||0} in / ${d.tokens.gemini_output||0} out`),
     ].join('');
+    const low=(d.users.low_balance||[]).map(u=>`<div class="flex justify-between py-1 border-b"><span>${esc(u.username)}</span><span class="badge badge-warning">${esc(u.token_balance)} tokens</span></div>`).join('');
+    const failed=(d.stories.recent_failures||[]).map(f=>`<div class="flex justify-between py-1 border-b"><span>${esc(f.title)} <span class="text-muted">${esc(f.username)}</span></span><span class="badge badge-error">failed</span></div>`).join('');
+    document.getElementById('watchlist').innerHTML=
+      `<div class="text-xs text-muted mb-1">Low balance</div>${low||'<div class="text-muted">None</div>'}`+
+      `<div class="text-xs text-muted mt-3 mb-1">Recent failures</div>${failed||'<div class="text-muted">None</div>'}`;
   }
   if(h.success){
     const t=h.data.tables, mb=(h.data.size_bytes/1048576).toFixed(2);
     document.getElementById('dbhealth').innerHTML=
-      `<div class="grid grid-cols-3 gap-3 mb-3">${Object.entries(t).map(([k,v])=>`<div class="border rounded p-2"><div class="text-muted text-xs">${esc(k)}</div><div class="font-semibold">${v} rows</div></div>`).join('')}</div>`+
+      `<div class="db-health-grid mb-3">${Object.entries(t).map(([k,v])=>`<div class="db-metric-tile"><div class="text-muted text-xs">${esc(k)}</div><div class="font-semibold">${v} rows</div></div>`).join('')}</div>`+
       `<div class="text-secondary">Database size: <strong>${mb} MB</strong></div>`+
       `<div class="text-secondary">Last writes: ${Object.entries(h.data.last_updated).map(([k,v])=>esc(k.split('_')[1])+' '+(v?esc(v):'—')).join(' · ')}</div>`;
   }
@@ -87,7 +128,7 @@ async function loadAll(){
     document.getElementById('recentUsers').innerHTML=a.data.users.map(u=>`<div class="flex justify-between py-1 border-b"><span>${esc(u.username)} <span class="text-muted">${esc(u.role)}</span></span><span class="text-muted">${esc(u.created_at.slice(0,10))}</span></div>`).join('')||'<div class="text-muted">No users</div>';
     document.getElementById('recentStories').innerHTML=a.data.stories.map(s=>`<div class="flex justify-between py-1 border-b"><span>${esc(s.title)} <span class="text-muted">${esc(s.username)}</span></span><span class="badge badge-${s.generation_status==='succeeded'?'success':'primary'}">${esc(s.generation_status)}</span></div>`).join('')||'<div class="text-muted">No stories</div>';
   }
-  const defs=[['c1','users_growth','line'],['c2','users_role','doughnut'],['c3','token_distribution','bar'],['c4','stories_status','doughnut'],['c5','generation_status','bar'],['c6','stories_per_day','line'],['c7','tokens_per_day','line'],['c8','top_users','bar'],['c9','gemini_usage','bar']];
+  const defs=[['c1','users_growth','line'],['c2','users_role','doughnut'],['c3','token_distribution','bar'],['c4','stories_status','doughnut'],['c5','generation_status','bar'],['c6','stories_per_day','line'],['c7','tokens_per_day','line'],['c8','top_users','bar'],['c9','gemini_usage','bar'],['c10','story_mix','bar']];
   await Promise.all(defs.map(async ([id,key,type])=>{
     const j=await get('/api/v1/admin/analytics/charts?chart='+key+'&range='+range());
     if(!j.success) return;

@@ -2,6 +2,8 @@ import pytest
 from app import create_app
 from app.models.user import create_user, get_user_by_id
 from app.models.system_settings import set_setting
+from app.db import get_db
+from app.models.story import create_story, update_story, soft_delete
 from app.security import DEFAULT_ROLE_PERMISSIONS, SUPER_ONLY_CAPABILITIES
 from app.schemas.validators import validate_username
 from app.services.bootstrap import bootstrap
@@ -222,6 +224,44 @@ def test_analytics_and_integrity(client, ctx):
     assert h["data"]["size_bytes"] > 0
     i = _json(client.get("/api/v1/admin/analytics/integrity"))
     assert i["data"]["integrity"] == "ok"
+
+
+def test_analytics_story_mix_chart(client, ctx):
+    admin = _make_user(ctx, "mix_admin", "SUPER_ADMIN")
+    uid = _make_user(ctx, "mix_user")
+    with ctx:
+        sid = create_story(uid, "Mix", "Body", character_gender="female",
+                           target_audience="children", desired_length="short", language="en")
+    _login(client, admin, "SUPER_ADMIN")
+
+    d = _json(client.get("/api/v1/admin/analytics/charts?chart=story_mix"))["data"]
+    assert d["labels"] and len(d["labels"]) == len(d["data"])
+    for label in ("language: en", "audience: children", "length: short", "gender: female"):
+        assert label in d["labels"]
+        assert d["data"][d["labels"].index(label)] == 1
+
+    with ctx:
+        soft_delete(sid, uid)
+    d2 = _json(client.get("/api/v1/admin/analytics/charts?chart=story_mix"))["data"]
+    assert "language: en" not in d2["labels"]
+
+
+def test_analytics_summary_watchlists(client, ctx):
+    admin = _make_user(ctx, "watch_admin", "SUPER_ADMIN")
+    uid = _make_user(ctx, "watch_user")
+    with ctx:
+        db = get_db()
+        db.execute("UPDATE tolstoy_users SET token_balance=1 WHERE id=?", (uid,))
+        sid = create_story(uid, "Failing", "Body")
+        update_story(sid, {"generation_status": "failed"}, uid)
+        db.commit()
+    _login(client, admin, "SUPER_ADMIN")
+
+    d = _json(client.get("/api/v1/admin/analytics/summary?range=7"))["data"]
+    assert d["stories"]["failed"] == 1
+    assert d["stories"]["recent_failures"][0]["title"] == "Failing"
+    assert d["stories"]["recent_failures"][0]["username"] == "watch_user"
+    assert {"username": "watch_user", "token_balance": 1} in d["users"]["low_balance"]
 
 
 def test_role_change_cannot_demote_last_super_admin(client, ctx):
