@@ -1,41 +1,7 @@
 {% extends "public/base_public.html" %}
+{% set auth_mode = 'register' %}
 {% block title %}Create account — TOLSTOY{% endblock %}
 {% block content %}
-<div class="auth-wrapper">
-  <div class="auth-card">
-    <div class="auth-logo">TOLSTOY</div>
-    <h1 class="text-2xl font-bold mb-1 text-center">Create your account</h1>
-    <p class="text-sm text-secondary text-center mb-6">Start writing comic scripts with AI</p>
-    <form id="regForm" class="space-y-4">
-      <div class="form-group">
-        <label class="form-label" for="username">Username</label>
-        <input id="username" name="username" class="form-input" required autocomplete="username">
-        <p class="form-hint">3–40 characters, letters, numbers, dots, dashes.</p>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="display_name">Display name</label>
-        <input id="display_name" name="display_name" class="form-input">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <input id="password" name="password" type="password" class="form-input" required autocomplete="new-password">
-        <p class="form-hint">At least 8 characters.</p>
-      </div>
-      <button class="btn btn-primary w-full" id="submitBtn">Create account</button>
-    </form>
-    <p class="text-sm text-secondary text-center mt-4">Already have an account? <a href="/login">Sign in</a></p>
-    <div id="msg" class="form-error text-center mt-2"></div>
-  </div>
-</div>
-<script>
-document.getElementById('regForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.textContent='Creating...';
-  const body={username:document.getElementById('username').value,password:document.getElementById('password').value,display_name:document.getElementById('display_name').value};
-  const r=await fetch('/api/v1/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),credentials:'same-origin'});
-  const j=await r.json();
-  btn.disabled=false; btn.textContent='Create account';
-  if(j.success){ window.location='/login'; } else { document.getElementById('msg').textContent=j.message; }
-});
-</script>
+{% include "public/_auth_shell.html" %}
 {% endblock %}
+{% block scripts %}{% endblock %}

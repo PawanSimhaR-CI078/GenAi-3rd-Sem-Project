@@ -1,0 +1,71 @@
+<div class="auth-wrapper auth-wrapper--split">
+  <div id="authContainer" class="auth-shell{% if auth_mode == 'register' %} right-panel-active{% endif %}" data-auth-mode="{{ auth_mode }}">
+    <div class="auth-form-panel auth-form-panel--signin">
+      <h1>Welcome back</h1>
+      <p>Sign in to your account</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label" for="loginUsername">Username</label>
+          <input id="loginUsername" name="username" class="form-input" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Password</label>
+          <div class="relative">
+            <input id="loginPassword" name="password" type="password" class="form-input" required autocomplete="current-password">
+            <button type="button" class="btn btn-ghost btn-sm" data-pw-toggle="loginPassword">show</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-full" id="loginSubmitBtn">Sign in</button>
+      </form>
+      <p>No account? <a href="/register">Create one</a></p>
+      <div id="loginMsg" class="form-error auth-error" role="alert" aria-live="polite"></div>
+    </div>
+
+    <div class="auth-form-panel auth-form-panel--signup">
+      <h1>Create your account</h1>
+      <p>Start writing comic scripts with AI</p>
+      <form id="registerForm">
+        <div class="form-group">
+          <label class="form-label" for="registerUsername">Username</label>
+          <input id="registerUsername" name="username" class="form-input" required autocomplete="username">
+          <p class="form-hint">3–40 characters, letters, numbers, dots, dashes.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="registerDisplayName">Display name</label>
+          <input id="registerDisplayName" name="display_name" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="registerPassword">Password</label>
+          <div class="relative">
+            <input id="registerPassword" name="password" type="password" class="form-input" required autocomplete="new-password">
+            <button type="button" class="btn btn-ghost btn-sm" data-pw-toggle="registerPassword">show</button>
+          </div>
+          <p class="form-hint">At least 8 characters.</p>
+        </div>
+        <button type="submit" class="btn btn-primary w-full" id="registerSubmitBtn">Create account</button>
+      </form>
+      <p>Already have an account? <a href="/login">Sign in</a></p>
+      <div id="registerMsg" class="form-error auth-error" role="alert" aria-live="polite"></div>
+    </div>
+
+    <div class="auth-overlay-container">
+      <div class="auth-overlay">
+        <div class="auth-overlay-panel auth-overlay-panel--signin">
+          <h2>Welcome back</h2>
+          <p>Sign in with your existing TOLSTOY account.</p>
+          <button type="button" class="btn" id="authSignInBtn">Sign in</button>
+        </div>
+        <div class="auth-overlay-panel auth-overlay-panel--signup">
+          <h2>New to TOLSTOY</h2>
+          <p>Get 5 tokens to start and write your first comic script.</p>
+          <button type="button" class="btn" id="authSignUpBtn">Create account</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-mode-switch" role="group" aria-label="Choose sign in or sign up">
+      <button type="button" id="authMobileSignIn" aria-pressed="{{ 'true' if auth_mode == 'login' else 'false' }}">Sign in</button>
+      <button type="button" id="authMobileSignUp" aria-pressed="{{ 'true' if auth_mode == 'register' else 'false' }}">Sign up</button>
+    </div>
+  </div>
+</div>
