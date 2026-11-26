@@ -233,6 +233,7 @@ tr:hover td { background: var(--color-bg); }
 .kpi-grid > .stat-card.kpi-tone--good .stat-value { color: var(--color-success); }
 .kpi-grid > .stat-card.kpi-tone--bad .stat-value { color: var(--color-error); }
 .kpi-grid > .stat-card.kpi-tone--gemini .stat-value { color: var(--color-primary); }
+.kpi-gemini-mark { width: 16px; height: 16px; margin-right: 6px; vertical-align: -2px; }
 .analytics-bento { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-4); grid-template-areas:
   "growth growth growth growth growth role role role status status status status"
   "dist dist dist dist gen gen gen gen gemini gemini gemini gemini"

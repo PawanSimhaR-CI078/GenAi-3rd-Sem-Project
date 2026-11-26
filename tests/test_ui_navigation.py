@@ -240,3 +240,14 @@ def test_analytics_kpi_tones_and_marque_polish(client, ctx):
     assert ".kpi-grid > .stat-card.kpi-tone--bad" in css
     assert "repeating-linear-gradient" in css
     assert "translateY(-3px)" in css
+
+
+def test_gemini_mark_and_rounded_bar_tops(client, ctx):
+    from pathlib import Path
+
+    html = (Path(__file__).resolve().parents[1] / "app/templates/admin/dashboard.html").read_text(encoding="utf-8")
+    assert "GEMINI_MARK" in html
+    assert 'aria-hidden="true"' in html
+    assert "Gemini tokens" in html
+    assert "borderRadius: 8" in html
+    assert "borderSkipped: 'bottom'" in html

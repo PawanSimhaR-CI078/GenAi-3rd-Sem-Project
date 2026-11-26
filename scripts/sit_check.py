@@ -113,7 +113,7 @@ r = a.get(BASE + "/admin/home")
 rec("GET /admin/home after admin login 200", r.status_code == 200 and "Welcome back" in r.text, r.status_code)
 
 r = a.get(BASE + "/admin")
-rec("GET /admin KPI tones 200", r.status_code == 200 and "card('Generation success'" in r.text and "'good'" in r.text and "'bad'" in r.text, r.status_code)
+rec("GET /admin KPI tones 200", r.status_code == 200 and "card('Generation success'" in r.text and "'good'" in r.text and "'bad'" in r.text and "GEMINI_MARK" in r.text and "borderSkipped: 'bottom'" in r.text, r.status_code)
 
 r = a.get(BASE + "/api/v1/admin/users")
 rec("Admin users list", r.status_code == 200 and len(jget(r)["data"]["users"]) > 0, r.status_code)

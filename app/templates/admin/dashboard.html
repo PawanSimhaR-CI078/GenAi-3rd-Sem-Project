@@ -85,8 +85,9 @@
 <script>
 const charts = {};
 const palette = ['#5546E8','#16A36A','#E9A23B','#DC4C4C','#3984E8','#9299AA','#8B5CF6','#0EA5E9'];
+const GEMINI_MARK = '<svg class="kpi-gemini-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><defs><linearGradient id="geminiGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4285F4"/><stop offset=".5" stop-color="#9B72CB"/><stop offset="1" stop-color="#D96570"/></linearGradient></defs><path fill="url(#geminiGradient)" d="M12 2c.7 5.2 2.8 7.3 8 8-5.2.7-7.3 2.8-8 8-.7-5.2-2.8-7.3-8-8 5.2-.7 7.3-2.8 8-8z"/></svg>';
 function range(){ return document.getElementById('range').value; }
-function card(label,value,sub,tone){ return `<div class="stat-card kpi-tone--${tone}"><div class="stat-label">${esc(label)}</div><div class="stat-value">${esc(value)}</div>${sub?`<div class="text-xs text-muted">${esc(sub)}</div>`:''}</div>`; }
+function card(label,value,sub,tone){ const mark=tone==='gemini'?GEMINI_MARK:''; return `<div class="stat-card kpi-tone--${tone}"><div class="stat-label">${mark}${esc(label)}</div><div class="stat-value">${esc(value)}</div>${sub?`<div class="text-xs text-muted">${esc(sub)}</div>`:''}</div>`; }
 async function get(url){ const r=await fetch(url,{credentials:'same-origin'}); return r.json(); }
 async function loadAll(){
   document.getElementById('updated').textContent='Refreshing…';
@@ -133,7 +134,7 @@ async function loadAll(){
     const j=await get('/api/v1/admin/analytics/charts?chart='+key+'&range='+range());
     if(!j.success) return;
     if(charts[id]) charts[id].destroy();
-    charts[id]=new Chart(document.getElementById(id),{type,data:{labels:j.data.labels,datasets:[{label:key,data:j.data.data,backgroundColor:type==='line'?'#5546E8':palette,borderColor:type==='line'?'#5546E8':'transparent',fill:false,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type!=='line',position:'bottom'}}}});
+    charts[id]=new Chart(document.getElementById(id),{type,data:{labels:j.data.labels,datasets:[{label:key,data:j.data.data,backgroundColor:type==='line'?'#5546E8':palette,borderColor:type==='line'?'#5546E8':'transparent',fill:false,tension:.3,...(type==='bar'?{borderRadius: 8,borderSkipped: 'bottom'}:{})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type!=='line',position:'bottom'}}}});
   }));
   document.getElementById('updated').textContent='Updated '+new Date().toLocaleTimeString();
 }
