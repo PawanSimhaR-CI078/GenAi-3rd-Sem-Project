@@ -29,7 +29,7 @@ async function loadMatrix(){
     if(r==='SUPER_ADMIN') return '<td class="text-center" title="SUPER_ADMIN always has every capability">✓ Full</td>';
     if(locked.includes(key)) return '<td class="text-center text-muted" title="SUPER_ADMIN only">lock</td>';
     const checked=(matrix[r]||[]).includes(key)?'checked':'';
-    return `<td class="text-center"><input type="checkbox" data-cap="${key}" data-role="${r}" ${checked} ${editable?'':'disabled'}></td>`;
+    return `<td class="text-center"><input class="perm-switch" type="checkbox" role="switch" aria-label="${esc(label)} for ${r}" data-cap="${key}" data-role="${r}" ${checked} ${editable?'':'disabled'}></td>`;
   }).join('')}</tr>`).join('');
   document.getElementById('matrixBody').innerHTML=rows;
   document.getElementById('saveMatrix').style.display=editable?'inline-block':'none';
