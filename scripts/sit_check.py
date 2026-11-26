@@ -25,6 +25,11 @@ for p in ["/", "/login", "/register", "/admin/login", "/maintenance"]:
     r = requests.get(BASE + p)
     rec(f"GET {p} 200", r.status_code == 200, r.status_code)
 
+for path in ("/login", "/register"):
+    r = requests.get(BASE + path)
+    mode = "login" if path == "/login" else "register"
+    rec(f"GET {path} auth shell 200", r.status_code == 200 and all(x in r.text for x in ("auth-wrapper--split", "auth-form-panel--signin", "auth-form-panel--signup", f'data-auth-mode="{mode}"')), r.status_code)
+
 r = requests.get(BASE + "/")
 rec("GET / landing sections 200", r.status_code == 200 and all(x in r.text for x in ('id="proof"', 'id="faq"', 'site-footer__grid', 'lp-script')), r.status_code)
 
