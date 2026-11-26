@@ -203,6 +203,10 @@ tr:hover td { background: var(--color-bg); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
 /* Admin additions */
 .sidebar-admin { border-color: rgba(255,255,255,.12); }
 .sidebar-admin .nav-link:not(.active) { color: #B9C1D4; }

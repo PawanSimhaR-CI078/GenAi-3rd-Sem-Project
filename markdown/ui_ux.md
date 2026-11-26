@@ -87,7 +87,7 @@ Links are hidden when the role lacks the capability.
   `role_permissions` are hidden and linked to Role Access; maintenance toggle moved to System Control.
 - **System Control:** SUPER_ADMIN only. ONLINE/OFFLINE status card, affected-user count, password
   re-entry, typed confirmation, persistent offline badge in the topbar.
-- **Admin entry points:** public nav and landing Admin card link to `/admin/login`; an ADMIN/SUPER_ADMIN
+- **Admin entry points:** public footer links to `/admin/login`; an ADMIN/SUPER_ADMIN
   signing in through either login form lands on the welcome page first. Users go to `/home`, admins to
   `/admin/home`. Both pages link to their dashboards. Their user sidebar also shows an Admin Panel link.
 

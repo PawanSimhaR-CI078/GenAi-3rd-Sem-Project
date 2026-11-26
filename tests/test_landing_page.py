@@ -31,3 +31,4 @@ def test_landing_styles(client):
     assert ".site-footer :focus-visible" in css
     assert "@media (max-width: 768px)" in css
     assert "prefers-reduced-motion" in css
+    assert "html { scroll-behavior: auto; }" in css
