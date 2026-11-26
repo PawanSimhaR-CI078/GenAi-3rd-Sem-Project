@@ -25,7 +25,7 @@ window.fetch = async function (input, init) {
   return _origFetch(input, init);
 };
 
-// Public navigation: compact menu below 768px.
+// Public navigation: compact menu below 900px.
 (function () {
   const toggle = document.querySelector('[data-nav-toggle]');
   if (!toggle) return;
@@ -53,7 +53,7 @@ window.fetch = async function (input, init) {
     }
   });
   window.addEventListener('resize', function () {
-    if (window.innerWidth > 768 && nav.classList.contains('is-open')) setOpen(false);
+    if (window.innerWidth > 900 && nav.classList.contains('is-open')) setOpen(false);
   });
 })();
 

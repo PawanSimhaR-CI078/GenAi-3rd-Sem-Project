@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="TOLSTOY turns your story idea into a structured comic script with scenes, panels, dialogue and narration.">
+<link rel="icon" href="data:,">
 <title>{% block title %}TOLSTOY{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,11 +14,11 @@
 </head>
 <body>
 <header class="public-nav public-nav--landing">
-  <a href="/" class="brand">TOLSTOY</a>
+  <a href="/" class="brand"><span class="brand-mark" aria-hidden="true">T</span><span>TOLSTOY</span></a>
   <button class="nav-toggle" type="button" data-nav-toggle aria-controls="publicNav" aria-expanded="false">
     <span class="nav-toggle__icon" aria-hidden="true"></span><span>Menu</span>
   </button>
-  <nav id="publicNav" class="flex items-center gap-2" aria-label="Public navigation">
+  <nav id="publicNav" class="public-nav__links" aria-label="Public navigation">
     <a href="/#how" class="btn btn-ghost btn-sm">How it works</a>
     <a href="/#features" class="btn btn-ghost btn-sm">Features</a>
     <a href="/#tokens" class="btn btn-ghost btn-sm">Tokens</a>

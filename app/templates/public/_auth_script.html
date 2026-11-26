@@ -44,6 +44,8 @@
       const revealing = input.type === 'password';
       input.type = revealing ? 'text' : 'password';
       button.textContent = revealing ? 'hide' : 'show';
+      const label = button.getAttribute('aria-label') || '';
+      button.setAttribute('aria-label', (revealing ? 'Hide ' : 'Show ') + label.replace(/^(Show|Hide) /, ''));
     });
   });
 

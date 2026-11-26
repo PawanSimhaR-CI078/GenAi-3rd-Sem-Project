@@ -4,6 +4,7 @@
 <script>if (sessionStorage.getItem('tolstoy_sidebar_collapsed') === '1') document.documentElement.classList.add('sidebar-collapsed');</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
 <title>{% block title %}TOLSTOY Admin{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,16 +39,16 @@
     </div>
   </aside>
   <div class="sidebar-backdrop" data-sidebar-backdrop></div>
-  <div class="main-content">
+  <main class="main-content">
     <header class="topbar">
       <button type="button" class="btn btn-ghost btn-sm mobile-toggle" data-sidebar-toggle aria-controls="sidebar" aria-expanded="false">Menu</button>
       <h1 class="text-lg font-semibold mb-0">{% block heading %}Admin{% endblock %}</h1>
       <div class="text-sm text-muted">{% if maintenance_on %}<span class="badge badge-error">OFFLINE</span>{% endif %} <span class="badge badge-primary">{{ session.get('role', 'ADMIN') }}</span></div>
     </header>
     {% block content %}{% endblock %}
-  </div>
+  </main>
 </div>
-<div class="toast-container" id="toasts"></div>
+<div class="toast-container" id="toasts" role="status" aria-live="polite"></div>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script>
 function logout(){ fetch('/api/v1/auth/logout',{method:'POST',credentials:'same-origin'}).then(()=>location.href='/admin/login'); }
