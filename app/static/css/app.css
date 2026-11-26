@@ -1,5 +1,4 @@
 /* TOLSTOY Design System */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
   --color-primary: #5546E8;
@@ -353,6 +352,12 @@ tr:hover td { background: var(--color-bg); }
 .public-nav--landing .brand { white-space: nowrap; }
 .public-nav--landing nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-1); }
 .public-nav--landing .btn { min-height: 44px; }
+.nav-toggle { display: none; align-items: center; gap: var(--space-2); min-height: 44px; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-card); color: var(--color-text); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; }
+.nav-toggle__icon { position: relative; display: block; width: 18px; height: 12px; }
+.nav-toggle__icon::before, .nav-toggle__icon::after { content: ""; position: absolute; left: 0; width: 18px; height: 2px; border-radius: 2px; background: var(--color-primary); }
+.nav-toggle__icon::before { top: 2px; }
+.nav-toggle__icon::after { bottom: 2px; }
+.nav-toggle:hover { background: var(--color-bg-secondary); }
 
 .lp-hero {
   display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
@@ -394,7 +399,7 @@ tr:hover td { background: var(--color-bg); }
 
 .lp-steps .feature-grid, .lp-benefits .feature-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); margin-top: var(--space-8); }
 .lp-steps .card, .lp-benefits .card { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; height: 100%; }
-.lp-steps .card .badge { align-self: flex-start; }
+.lp-steps .card .badge { align-self: flex-start; position: relative; z-index: 1; }
 .lp-steps .card-title, .lp-benefits .card-title { font-size: 18px; margin: 0; }
 .lp-steps p, .lp-benefits p { font-size: 14px; margin: 0; }
 
@@ -417,6 +422,7 @@ tr:hover td { background: var(--color-bg); }
 .lp-faq details[open] { border-color: var(--color-primary); }
 .lp-faq summary { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); list-style: none; cursor: pointer; padding: var(--space-4) var(--space-5); font-family: var(--font-heading); font-size: 16px; font-weight: 600; color: var(--color-text); }
 .lp-faq summary::-webkit-details-marker { display: none; }
+.lp-faq summary:hover { background: var(--color-bg); }
 .lp-faq summary::after { content: "+"; font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: var(--color-primary); }
 .lp-faq details[open] summary::after { content: "-"; }
 .lp-faq details p { margin: 0; padding: 0 var(--space-5) var(--space-4); color: var(--color-text-secondary); font-size: 14px; }
@@ -441,15 +447,18 @@ tr:hover td { background: var(--color-bg); }
 .site-footer__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-8); max-width: 1200px; margin: 0 auto; }
 .site-footer__col h2 { color: var(--color-card); font-family: var(--font-mono); font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: var(--space-4); }
 .site-footer__col ul { display: flex; flex-direction: column; gap: var(--space-2); list-style: none; padding: 0; margin: 0; }
-.site-footer__col a { color: var(--color-card); font-size: 13px; }
+.site-footer__col a { color: var(--color-card); font-size: 13px; display: inline-flex; align-items: center; min-height: 24px; }
 .site-footer__col a:hover { color: var(--color-card); text-decoration: underline; }
 .site-footer__col p { color: var(--color-border); font-size: 13px; margin: 0 0 var(--space-2); }
 .site-footer > p { max-width: 1200px; margin: var(--space-8) auto 0; padding-top: var(--space-5); border-top: 1px solid var(--color-text-secondary); color: var(--color-border); font-size: 13px; }
 .lp-final :focus-visible, .site-footer :focus-visible { outline-color: var(--color-card); }
 
 @media (max-width: 768px) {
-  .public-nav--landing { flex-wrap: wrap; gap: var(--space-2); padding: var(--space-3) var(--space-4); }
-  .public-nav--landing nav { width: 100%; justify-content: flex-start; }
+  .public-nav--landing { position: relative; flex-wrap: nowrap; gap: var(--space-2); padding: var(--space-3) var(--space-4); }
+  .nav-toggle { display: inline-flex; margin-left: auto; }
+  .public-nav--landing nav { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: var(--space-1); padding: var(--space-3) var(--space-4); background: var(--color-card); border-bottom: 1px solid var(--color-border); box-shadow: var(--shadow-md); }
+  .public-nav--landing nav.is-open { display: flex; }
+  .public-nav--landing nav .btn { width: 100%; justify-content: center; }
   .lp-hero { grid-template-columns: 1fr; gap: var(--space-8); padding: var(--space-10) var(--space-4); }
   .lp-hero h1 { font-size: 36px; }
   .lp-actions { flex-direction: column; }
@@ -468,7 +477,6 @@ tr:hover td { background: var(--color-bg); }
   .public-nav--landing .btn { padding: var(--space-2) var(--space-3); }
   .lp-hero, .lp-proof, .lp-problem, .lp-steps, .lp-benefits, .lp-faq { padding-inline: var(--space-3); }
   .lp-hero h1 { font-size: 30px; }
-  .lp-script-name, .lp-script-line { font-size: 11px; }
   .lp-tokens { margin-inline: var(--space-3); padding: var(--space-4); }
   .lp-final { margin-inline: var(--space-3); padding: var(--space-6) var(--space-4); }
   .lp-final h2 { font-size: 26px; }
@@ -574,6 +582,11 @@ tr:hover td { background: var(--color-bg); }
   .auth-form-panel--signin { visibility: visible; }
   .auth-shell.right-panel-active .auth-form-panel--signup { visibility: visible; }
   .auth-shell.right-panel-active .auth-form-panel--signin { visibility: hidden; }
+}
+
+@media (min-width: 769px) {
+  .lp-steps .feature-grid { position: relative; }
+  .lp-steps .feature-grid::before { content: ""; position: absolute; top: calc(var(--space-5) + 12px); left: 16%; right: 16%; border-top: 1px dashed var(--color-border); }
 }
 
 @media (prefers-reduced-motion: reduce) {

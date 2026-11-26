@@ -13,7 +13,10 @@
 <body>
 <header class="public-nav public-nav--landing">
   <a href="/" class="brand">TOLSTOY</a>
-  <nav class="flex items-center gap-2" aria-label="Public navigation">
+  <button class="nav-toggle" type="button" data-nav-toggle aria-controls="publicNav" aria-expanded="false">
+    <span class="nav-toggle__icon" aria-hidden="true"></span><span>Menu</span>
+  </button>
+  <nav id="publicNav" class="flex items-center gap-2" aria-label="Public navigation">
     <a href="/#how" class="btn btn-ghost btn-sm">How it works</a>
     <a href="/#features" class="btn btn-ghost btn-sm">Features</a>
     <a href="/#tokens" class="btn btn-ghost btn-sm">Tokens</a>

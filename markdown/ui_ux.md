@@ -13,7 +13,7 @@ HTML5, Jinja2, CSS3, Vanilla JS. Tailwind and Chart.js via CDN (pin versions bef
 
 ## 3. Public Pages
 
-- **Landing:** nav, hero with script preview, proof strip, problem, how it works, benefits, token model, FAQ, final CTA and footer; the four-column footer is shared with every public page through `base_public.html`.
+- **Landing:** nav, hero with script preview, proof strip, problem, how it works, benefits, token model, FAQ, final CTA and footer; the four-column footer is shared with every public page through `base_public.html`. On phones the public nav collapses behind a labeled Menu button; Escape closes it and returns focus.
 - **Register:** username, password, display name, phone (optional), validation.
 - **User login:** username + password. This page shares one sliding screen with registration at `/login` and `/register`, opening on sign in at `/login` and sign up at `/register`.
 - **Admin login:** separate route and page at `/admin/login`.

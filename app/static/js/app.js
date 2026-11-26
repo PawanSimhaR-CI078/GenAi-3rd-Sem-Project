@@ -25,6 +25,38 @@ window.fetch = async function (input, init) {
   return _origFetch(input, init);
 };
 
+// Public navigation: compact menu below 768px.
+(function () {
+  const toggle = document.querySelector('[data-nav-toggle]');
+  if (!toggle) return;
+  const nav = document.getElementById(toggle.getAttribute('aria-controls'));
+  if (!nav) return;
+
+  function setOpen(open) {
+    nav.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  }
+
+  toggle.addEventListener('click', function () {
+    setOpen(!nav.classList.contains('is-open'));
+  });
+  nav.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () { setOpen(false); });
+  });
+  document.addEventListener('pointerdown', function (e) {
+    if (!toggle.contains(e.target) && !nav.contains(e.target)) setOpen(false);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && nav.classList.contains('is-open')) {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 768 && nav.classList.contains('is-open')) setOpen(false);
+  });
+})();
+
 // Mobile sidebar drawer: one pattern for user and admin layouts.
 (function () {
   function setupDrawer() {
