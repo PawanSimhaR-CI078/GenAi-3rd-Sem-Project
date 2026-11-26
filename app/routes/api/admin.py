@@ -3,7 +3,7 @@ import sqlite3
 from flask import Blueprint, request, jsonify, session
 from app.security import (login_required, admin_required, permission_required,
                           VALID_ROLES, ADMIN_CAPABILITIES, SUPER_ONLY_CAPABILITIES,
-                          permissions_for)
+                          DEFAULT_ROLE_PERMISSIONS, permissions_for)
 from app.models.user import (list_users, get_user_by_id, update_user, adjust_tokens,
                              count_users, count_active_users)
 from app.models.story import list_all_stories
@@ -199,17 +199,15 @@ def put_permissions():
     matrix = data.get("permissions")
     if not isinstance(matrix, dict):
         return _fail("VALIDATION_ERROR", "Invalid permission matrix")
-    clean = {}
-    for role in VALID_ROLES:
-        if role == "SUPER_ADMIN":
-            clean[role] = ["*"]
-            continue
-        values = matrix.get(role, [])
-        if not isinstance(values, list) or any(v not in ADMIN_CAPABILITIES for v in values):
-            return _fail("VALIDATION_ERROR", f"Invalid capabilities for {role}")
-        if set(values) & SUPER_ONLY_CAPABILITIES:
-            return _fail("FORBIDDEN", "Some capabilities are SUPER_ADMIN only", 403)
-        clean[role] = values
+    stored = get_setting_value("role_permissions", {}) or {}
+    clean = {"USER": stored.get("USER", DEFAULT_ROLE_PERMISSIONS["USER"])}
+    values = matrix.get("ADMIN", [])
+    if not isinstance(values, list) or any(v not in ADMIN_CAPABILITIES for v in values):
+        return _fail("VALIDATION_ERROR", "Invalid capabilities for ADMIN")
+    if set(values) & SUPER_ONLY_CAPABILITIES:
+        return _fail("FORBIDDEN", "Some capabilities are SUPER_ADMIN only", 403)
+    clean["ADMIN"] = values
+    clean["SUPER_ADMIN"] = ["*"]
     actor_role = session.get("role")
     if actor_role != "SUPER_ADMIN" and "roles_manage" not in clean.get(actor_role, []):
         return _fail("FORBIDDEN", "You cannot revoke your own role-management access", 403)

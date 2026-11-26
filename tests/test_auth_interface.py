@@ -33,6 +33,19 @@ def test_auth_shell_exposes_controls_and_live_regions(client):
         assert html.count("data-pw-toggle=") == 2, path
 
 
+def test_panel_switch_moves_focus_out_of_hidden_overlay():
+    from pathlib import Path
+
+    script = (Path(__file__).resolve().parents[1] / "app/templates/public/_auth_script.html").read_text(encoding="utf-8")
+    assert "focusWasInOverlay" in script
+    assert "mobileQuery.matches" in script
+    assert "panel.querySelector('input')" in script
+    assert "register ? signUpPanel : signInPanel" in script
+    assert "target.focus()" in script
+    assert script.index("focusWasInOverlay") < script.index("classList.toggle")
+    assert script.index("classList.toggle") < script.index("target.focus()")
+
+
 def test_shared_auth_script_uses_real_endpoints(client):
     from pathlib import Path
 

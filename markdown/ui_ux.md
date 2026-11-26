@@ -77,9 +77,10 @@ Links are hidden when the role lacks the capability.
 - **User Editing:** searchable/filterable table with a side drawer for username, display name, phone
   and active state (ADMIN+). The “Add tokens” control appears only for SUPER_ADMIN, is increase-only,
   and shows a live preview of the new balance.
-- **Role Access:** SUPER_ADMIN only. Permission matrix (capabilities × roles, SUPER_ADMIN locked)
-  plus user role assignment with password re-entry and guardrails. Locked capabilities render as
-  🔒 and cannot be granted to USER/ADMIN.
+- **Role Access:** SUPER_ADMIN only. Permission matrix (capabilities × roles) with brand switches
+  for editable ADMIN permissions. The USER column reads Fixed because user capabilities are managed
+  automatically, and SUPER_ADMIN stays locked. Locked capabilities render as lock in the ADMIN column
+  and cannot be granted to USER/ADMIN.
 - **Live Database:** table switcher, row search, pagination, optional 5-second auto-refresh, row detail,
   hidden password hashes and masked secrets. Read-only.
 - **Story management:** table with filters, view, delete/archive.

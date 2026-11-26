@@ -1,7 +1,7 @@
 import pytest
 from app import create_app
 from app.models.user import create_user, get_user_by_id
-from app.models.system_settings import set_setting
+from app.models.system_settings import get_setting_value, set_setting
 from app.db import get_db
 from app.models.story import create_story, update_story, soft_delete
 from app.security import DEFAULT_ROLE_PERMISSIONS, SUPER_ONLY_CAPABILITIES
@@ -144,6 +144,28 @@ def test_permissions_enforced(client, ctx):
     _login(client, admin_id, "ADMIN")
     assert client.get("/api/v1/admin/users").status_code == 200
     assert client.patch("/api/v1/admin/users/2/tokens", json={"increase": 1}).status_code == 403
+
+
+def test_permission_save_preserves_user_capabilities(client, ctx):
+    super_id = _make_user(ctx, "perm_preserve_super", "SUPER_ADMIN")
+    original_user = ["dashboard", "stories", "wallet", "contact", "profile"]
+    with ctx:
+        set_setting("role_permissions", {
+            "USER": original_user,
+            "ADMIN": ["analytics"],
+            "SUPER_ADMIN": ["*"],
+        }, "json")
+
+    _login(client, super_id, "SUPER_ADMIN")
+    response = client.put("/api/v1/admin/roles/permissions", json={"permissions": {
+        "ADMIN": ["users_view"], "SUPER_ADMIN": ["*"]}})
+    assert response.status_code == 200
+
+    with ctx:
+        stored = get_setting_value("role_permissions")
+    assert stored["USER"] == original_user
+    assert stored["ADMIN"] == ["users_view"]
+    assert stored["SUPER_ADMIN"] == ["*"]
 
 
 def test_locked_matrix_entries_are_stripped(client, ctx):

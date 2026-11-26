@@ -2,7 +2,7 @@
 
 **Goal:** Give TOLSTOY the split sign in and sign up feel from the copied example, using TOLSTOY's own colors, real form fields and real auth endpoints.
 
-**Status:** Proposed on 2026-11-26, awaiting owner approval. Approach: one shared sliding auth screen rendered by `/login` and `/register`. Admin sign in stays separate.
+**Status:** Approved and implemented on 2026-11-26. Approach: one shared sliding auth screen rendered by `/login` and `/register`. Admin sign in stays separate.
 
 ## Intent
 

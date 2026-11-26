@@ -2,25 +2,27 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make the editable permission checkboxes on `/admin/roles` look like brand-colored switches without changing native checkbox behavior or the saved permission payload.
+**Goal:** Make the editable permission checkboxes on `/admin/roles` look like brand-colored switches without changing native checkbox behavior. Saving the matrix now preserves fixed USER capabilities.
 
-**Architecture:** The existing permission matrix is built in JavaScript inside `roles.html`. Keep every editable cell as `<input type="checkbox">`, add `role="switch"` and an accessible name, and style it with one scoped CSS block. No API, backend, route or table changes.
+**Architecture:** The existing permission matrix is built in JavaScript inside `roles.html`. Keep every editable cell as `<input type="checkbox">`, add `role="switch"` and an accessible name, and style it with one scoped CSS block. The permission PUT changes to preserve USER values; no route, table or dependency changes.
 
 **Tech Stack:** Flask, Jinja2, hand-written CSS3, vanilla JavaScript, pytest, browser verification.
 
 **Spec:** `docs/superpowers/specs/2026-11-26-role-access-toggles-design.md`
+
+**Amendment after approval:** Browser verification exposed that the original matrix save wiped USER capabilities. The owner chose to preserve them. Implementation sends only `ADMIN` and `SUPER_ADMIN`, the backend keeps stored USER values, and the USER column renders `Fixed` text. Task 1's source assertions were updated accordingly.
 
 ## Global Constraints
 
 - Exactly three application tables: `tolstoy_users`, `tolstoy_stories`, `tolstoy_system_settings`. Never add a table.
 - No new dependency, npm, build step, framework, icon library or stylesheet.
 - Keep Flask application factory, Jinja2 autoescaping, hand-written CSS3 and vanilla JavaScript.
-- Keep the permission API, backend authorization, CSRF wrapper and session behavior unchanged.
+- Keep backend authorization, CSRF wrapper and session behavior unchanged. The permission PUT now preserves stored USER capabilities.
 - Use only existing design tokens. Primary `#5546E8`, hover `#4636D9`, border `#E4E7EF`, card `#FFFFFF`.
 - Do not use copied orange or pink colors, Font Awesome or emoji icons.
 - All new copy is plain and human, with no en dash or em dash.
 - Native checkbox semantics stay: keyboard toggle, visible focus, disabled state and `.checked` as the source of truth.
-- The save selector `#matrixBody input[type=checkbox]` and the payload keys `USER`, `ADMIN`, `SUPER_ADMIN` stay unchanged.
+- The save selector `#matrixBody input[type=checkbox]` stays unchanged. The payload keys are `ADMIN` and `SUPER_ADMIN`; USER capabilities are fixed and preserved by the backend.
 - SUPER_ADMIN cells stay as `✓ Full`; SUPER_ADMIN-only capabilities stay as `lock`. Neither becomes an interactive control.
 
 ## Review Focus
@@ -84,12 +86,17 @@ def test_locked_and_full_cells_stay_text():
     assert "perm-switch" not in html.split("if(locked.includes(key))")[1].split("const checked=")[0]
 
 
-def test_save_payload_is_unchanged():
+def test_user_column_is_read_only():
+    html = _html()
+    assert 'if(r===\'USER\') return \'<td class="text-center text-muted" title="Managed automatically">Fixed</td>\';' in html
+
+
+def test_save_payload_only_writes_admin():
     html = _html()
     assert "document.querySelectorAll('#matrixBody input[type=checkbox]')" in html
     assert "el.checked" in html
     assert "out[el.dataset.role].push(el.dataset.cap)" in html
-    assert "out={USER:[],ADMIN:[],SUPER_ADMIN:['*']}" in html
+    assert "out={ADMIN:[],SUPER_ADMIN:['*']}" in html
 
 
 def test_switch_styles_use_brand_tokens_and_respect_reduced_motion():
@@ -119,7 +126,7 @@ In `app/templates/admin/roles.html`, change only the editable cell template:
 return `<td class="text-center"><input class="perm-switch" type="checkbox" role="switch" aria-label="${esc(label)} for ${r}" data-cap="${key}" data-role="${r}" ${checked} ${editable?'':'disabled'}></td>`;
 ```
 
-Do not change `loadMatrix()`, `saveMatrix()`, the role keys, the Full cell, the lock cell or `checked`.
+Do not change `loadMatrix()`, the role keys, the Full cell, the lock cell or `checked`. The post-approval amendment changes `saveMatrix()` to send only ADMIN and SUPER_ADMIN.
 
 - [ ] **Step 4: Add scoped CSS**
 
@@ -142,7 +149,7 @@ git commit -m "Style Role Access permission switches"
 ### Task 2: Full verification and push
 
 **Files:**
-- No source file changes expected. If `markdown/ui_ux.md` names the control type, update only that line; it currently does not.
+- The post-approval amendment changes `roles.html`, `app/routes/api/admin.py`, tests and `markdown/ui_ux.md`. This task verifies them and commits the docs.
 
 **Interfaces:**
 - Consumes: markup and styles from Task 1.
@@ -159,10 +166,10 @@ Run each and record exact output:
 Load the `browser` skill before the first browser tool call. Start the Flask server on port 5001 in the background and sign in at `/admin/login` as `Pawan Simha R` with the local demo password from `readme.md`.
 
 Check that:
-- `/admin/roles` shows switches for editable USER and ADMIN cells.
+- `/admin/roles` shows switches for editable ADMIN cells and `Fixed` in the USER column.
 - SUPER_ADMIN cells still read `✓ Full` and locked cells still read `lock`.
 - Tab reaches a switch, focus is visible, Space toggles it, and the Save permissions button appears.
-- Toggling and saving keeps the same capability keys in the API request.
+- Toggling and saving sends only `ADMIN` and `SUPER_ADMIN`, and stored USER capabilities stay unchanged.
 - A viewer without `roles_manage` sees disabled switches.
 - No console errors.
 
@@ -176,6 +183,6 @@ If Step 2 required a source change, commit it with message `Verify Role Access s
 
 - Spec goals 1 to 5 map to Task 1; browser and accessibility outcomes map to Task 2.
 - All five Review Focus inputs have a source or browser test in an owning task.
-- Save payload, locked cells, Full cells, CSRF and backend authorization are untouched.
+- The save payload no longer includes USER; locked cells, Full cells, CSRF and backend authorization are untouched.
 - No new file besides one focused test; CSS stays in the existing stylesheet.
 - The plan is shorter than the code it describes only in test code blocks, which pin exact strings the builder cannot guess.

@@ -27,12 +27,17 @@ def test_locked_and_full_cells_stay_text():
     assert "perm-switch" not in html.split("if(locked.includes(key))")[1].split("const checked=")[0]
 
 
-def test_save_payload_is_unchanged():
+def test_user_column_is_read_only():
+    html = _html()
+    assert 'if(r===\'USER\') return \'<td class="text-center text-muted" title="Managed automatically">Fixed</td>\';' in html
+
+
+def test_save_payload_only_writes_admin():
     html = _html()
     assert "document.querySelectorAll('#matrixBody input[type=checkbox]')" in html
     assert "el.checked" in html
     assert "out[el.dataset.role].push(el.dataset.cap)" in html
-    assert "out={USER:[],ADMIN:[],SUPER_ADMIN:['*']}" in html
+    assert "out={ADMIN:[],SUPER_ADMIN:['*']}" in html
 
 
 def test_switch_styles_use_brand_tokens_and_respect_reduced_motion():

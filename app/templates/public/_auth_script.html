@@ -11,6 +11,8 @@
 
   function setMode(mode) {
     const register = mode === 'register';
+    const overlay = container.querySelector('.auth-overlay-container');
+    const focusWasInOverlay = !mobileQuery.matches && overlay && overlay.contains(document.activeElement);
     container.classList.toggle('right-panel-active', register);
     container.setAttribute('data-auth-mode', mode);
     history.replaceState(null, '', register ? '/register' : '/login');
@@ -23,6 +25,11 @@
     }
     mobileSignIn.setAttribute('aria-pressed', String(!register));
     mobileSignUp.setAttribute('aria-pressed', String(register));
+    if (focusWasInOverlay) {
+      const panel = register ? signUpPanel : signInPanel;
+      const target = panel.querySelector('input') || panel.querySelector('h1') || panel.querySelector('h2');
+      if (target) target.focus();
+    }
   }
 
   document.getElementById('authSignInBtn').addEventListener('click', function () { setMode('login'); });

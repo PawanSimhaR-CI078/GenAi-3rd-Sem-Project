@@ -26,6 +26,7 @@ async function loadMatrix(){
   matrix=j.data.permissions; caps=j.data.capabilities; editable=j.data.editable;
   locked=j.data.locked||[];
   const rows=Object.entries(caps).map(([key,label])=>`<tr><td>${esc(label)}</td>${roleKeys.map(r=>{
+    if(r==='USER') return '<td class="text-center text-muted" title="Managed automatically">Fixed</td>';
     if(r==='SUPER_ADMIN') return '<td class="text-center" title="SUPER_ADMIN always has every capability">✓ Full</td>';
     if(locked.includes(key)) return '<td class="text-center text-muted" title="SUPER_ADMIN only">lock</td>';
     const checked=(matrix[r]||[]).includes(key)?'checked':'';
@@ -35,7 +36,7 @@ async function loadMatrix(){
   document.getElementById('saveMatrix').style.display=editable?'inline-block':'none';
 }
 async function saveMatrix(){
-  const out={USER:[],ADMIN:[],SUPER_ADMIN:['*']};
+  const out={ADMIN:[],SUPER_ADMIN:['*']};
   document.querySelectorAll('#matrixBody input[type=checkbox]').forEach(el=>{if(el.checked)out[el.dataset.role].push(el.dataset.cap);});
   const r=await fetch('/api/v1/admin/roles/permissions',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({permissions:out}),credentials:'same-origin'});
   const j=await r.json(); showToast(j.message,j.success?'success':'error'); loadMatrix();
