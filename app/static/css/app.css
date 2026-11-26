@@ -463,3 +463,108 @@ tr:hover td { background: var(--color-bg); }
   .lp-final h2 { font-size: 26px; }
   .site-footer { padding-inline: var(--space-3); }
 }
+
+/* Auth interface */
+.auth-wrapper--split {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--space-16) + var(--space-12)) var(--space-5) var(--space-16);
+  background: var(--color-bg);
+}
+.auth-shell {
+  position: relative;
+  width: 100%;
+  max-width: 768px;
+  min-height: 480px;
+  background: var(--color-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  transition: transform var(--transition);
+}
+.auth-form-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+  background: var(--color-card);
+  transition: transform var(--transition);
+}
+.auth-form-panel--signup { left: 50%; }
+.auth-form-panel[hidden] { display: none; }
+.auth-form-panel h1 { font-size: 28px; }
+.auth-form-panel > p { color: var(--color-text-secondary); }
+.auth-error { min-height: 20px; margin-top: var(--space-4); color: var(--color-error); text-align: left; }
+.auth-overlay-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 3;
+  transition: transform var(--transition);
+}
+.auth-shell.right-panel-active .auth-overlay-container { transform: translateX(-100%); }
+.auth-overlay {
+  position: relative;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: var(--color-card);
+  transform: translateX(-50%);
+  transition: transform var(--transition);
+}
+.auth-shell.right-panel-active .auth-overlay { transform: translateX(0); }
+.auth-overlay-panel {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.auth-overlay-panel h2, .auth-overlay-panel p { color: var(--color-card); }
+.auth-overlay-panel .btn { background: transparent; border-color: var(--color-card); color: var(--color-card); min-width: 160px; }
+.auth-overlay-panel .btn:hover:not(:disabled) { background: var(--color-card); color: var(--color-primary); }
+.auth-overlay-panel--signin { left: 0; visibility: hidden; }
+.auth-overlay-panel--signup { right: 0; visibility: visible; }
+.auth-shell.right-panel-active .auth-overlay-panel--signin { visibility: visible; }
+.auth-shell.right-panel-active .auth-overlay-panel--signup { visibility: hidden; }
+.auth-mode-switch { display: none; }
+.auth-shell :focus-visible { outline-color: var(--color-primary-hover); outline-offset: 3px; }
+.auth-overlay-panel :focus-visible { outline-color: var(--color-card); }
+
+@media (max-width: 768px) {
+  .auth-wrapper--split { padding: var(--space-12) var(--space-4) var(--space-10); }
+  .auth-shell { display: flex; flex-direction: column; min-height: 0; max-width: 420px; }
+  .auth-form-panel, .auth-form-panel--signup { position: static; width: 100%; padding: var(--space-6); overflow: visible; }
+  .auth-form-panel .btn-primary { width: 100%; }
+  .auth-overlay-container { display: none; }
+  .auth-mode-switch { display: flex; gap: var(--space-2); margin: 0 var(--space-6) var(--space-6); }
+  .auth-mode-switch button { flex: 1; min-height: 44px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-card); color: var(--color-text-secondary); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; }
+  .auth-mode-switch button[aria-pressed="true"] { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-card); }
+}
+
+@media (min-width: 769px) {
+  .auth-form-panel--signup { visibility: hidden; }
+  .auth-form-panel--signin { visibility: visible; }
+  .auth-shell.right-panel-active .auth-form-panel--signup { visibility: visible; }
+  .auth-shell.right-panel-active .auth-form-panel--signin { visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-shell, .auth-form-panel, .auth-overlay-container, .auth-overlay { transition: none; }
+}

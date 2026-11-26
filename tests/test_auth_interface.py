@@ -67,3 +67,40 @@ def test_shared_auth_script_only_hides_panels_on_mobile():
     assert "signUpPanel.hidden = !register;" in branches.group(1)
     assert "signInPanel.hidden = false;" in branches.group(2)
     assert "signUpPanel.hidden = false;" in branches.group(2)
+
+
+def test_auth_interface_styles(client):
+    from pathlib import Path
+
+    css = (Path(__file__).resolve().parents[1] / "app/static/css/app.css").read_text(encoding="utf-8")
+    for selector in (".auth-wrapper--split", ".auth-shell", ".auth-form-panel",
+                     ".auth-overlay-container", ".auth-overlay-panel", ".auth-mode-switch",
+                     ".auth-error", ".right-panel-active"):
+        assert selector in css
+    assert "#5546E8" not in css.split("/* Auth interface */")[-1].replace("--color-primary: #5546E8;", "")
+    assert "FF4B2B" not in css and "FF416C" not in css
+    assert "@media (max-width: 768px)" in css.split("/* Auth interface */")[-1]
+    assert "@media (prefers-reduced-motion: reduce)" in css.split("/* Auth interface */")[-1]
+    assert ".auth-shell :focus-visible" in css
+
+
+def test_auth_css_keeps_hidden_panels_and_focus_states():
+    import re
+    from pathlib import Path
+
+    css = (Path(__file__).resolve().parents[1] / "app/static/css/app.css").read_text(encoding="utf-8")
+    hidden_rule = ".auth-form-panel[hidden] { display: none; }"
+    assert hidden_rule in css
+    assert not re.search(r"\.auth-form-panel\s*\{[^}]*\bdisplay\s*:", css.split(hidden_rule, 1)[1])
+
+    desktop = css.split("@media (min-width: 769px) {", 1)[1].split("\n}", 1)[0]
+    for rule in (".auth-form-panel--signup { visibility: hidden; }",
+                 ".auth-form-panel--signin { visibility: visible; }",
+                 ".auth-shell.right-panel-active .auth-form-panel--signup { visibility: visible; }",
+                 ".auth-shell.right-panel-active .auth-form-panel--signin { visibility: hidden; }"):
+        assert rule in desktop
+
+    focus_rule = ".auth-shell :focus-visible { outline-color: var(--color-primary-hover); outline-offset: 3px; }"
+    overlay_focus_rule = ".auth-overlay-panel :focus-visible { outline-color: var(--color-card); }"
+    assert overlay_focus_rule in css
+    assert css.index(overlay_focus_rule) > css.index(focus_rule)
