@@ -11,17 +11,52 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
 <body>
-<header class="public-nav">
+<header class="public-nav public-nav--landing">
   <a href="/" class="brand">TOLSTOY</a>
-  <nav class="flex items-center gap-2">
-    <a href="/" class="btn btn-ghost btn-sm">Home</a>
+  <nav class="flex items-center gap-2" aria-label="Public navigation">
+    <a href="/#how" class="btn btn-ghost btn-sm">How it works</a>
+    <a href="/#features" class="btn btn-ghost btn-sm">Features</a>
+    <a href="/#tokens" class="btn btn-ghost btn-sm">Tokens</a>
+    <a href="/#faq" class="btn btn-ghost btn-sm">FAQ</a>
     <a href="/admin/login" class="btn btn-ghost btn-sm">Admin</a>
     <a href="/login" class="btn btn-ghost btn-sm">Sign in</a>
     <a href="/register" class="btn btn-primary btn-sm">Get started</a>
   </nav>
 </header>
 <main>{% block content %}{% endblock %}</main>
-<footer class="footer">© 2026 TOLSTOY — AI Story to Comic Script Generator</footer>
+<footer class="site-footer">
+  <div class="site-footer__grid">
+    <div class="site-footer__col">
+      <h2>Product</h2>
+      <ul>
+        <li><a href="/#how">How it works</a></li>
+        <li><a href="/#features">Features</a></li>
+        <li><a href="/#tokens">Token model</a></li>
+        <li><a href="/#faq">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="site-footer__col">
+      <h2>Resources</h2>
+      <ul>
+        <li><a href="/login">Sign in</a></li>
+        <li><a href="/register">Create an account</a></li>
+        <li><a href="/admin/login">Admin access</a></li>
+        <li><a href="/maintenance">Maintenance notice</a></li>
+      </ul>
+    </div>
+    <div class="site-footer__col">
+      <h2>Company</h2>
+      <p>TOLSTOY</p>
+      <p>A writing tool for comic makers</p>
+    </div>
+    <div class="site-footer__col">
+      <h2>Legal</h2>
+      <p>Accounts use session cookies</p>
+      <p>Changes use CSRF protection</p>
+    </div>
+  </div>
+  <p>© 2026 TOLSTOY, AI Story to Comic Script Generator</p>
+</footer>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 {% block scripts %}{% endblock %}
 </body>
