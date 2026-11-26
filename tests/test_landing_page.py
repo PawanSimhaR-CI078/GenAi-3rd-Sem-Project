@@ -20,3 +20,14 @@ def test_public_nav_and_shared_footer(client):
     for path in ("/login", "/register", "/admin/login", "/maintenance"):
         page = client.get(path).get_data(as_text=True)
         assert "site-footer__grid" in page, path
+
+
+def test_landing_styles(client):
+    from pathlib import Path
+    css = (Path(__file__).resolve().parents[1] / "app/static/css/app.css").read_text(encoding="utf-8")
+    for selector in (".lp-hero", ".lp-script", ".lp-proof", ".lp-steps", ".lp-benefits", ".lp-tokens", ".lp-faq", ".lp-final", ".site-footer__grid"):
+        assert selector in css
+    assert ".lp-final :focus-visible" in css
+    assert ".site-footer :focus-visible" in css
+    assert "@media (max-width: 768px)" in css
+    assert "prefers-reduced-motion" in css
