@@ -223,3 +223,20 @@ def test_welcome_link_in_both_sidebars(client, ctx):
     assert 'href="/admin/home"' in html
     assert '>home</i>' in html
     assert "Welcome</span>" in html
+
+
+def test_analytics_kpi_tones_and_marque_polish(client, ctx):
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    html = (root / "app/templates/admin/dashboard.html").read_text(encoding="utf-8")
+    css = (root / "app/static/css/app.css").read_text(encoding="utf-8")
+
+    assert "card('Generation success'" in html
+    assert "'good'" in html
+    assert "'bad'" in html
+    assert "kpi-tone--" in html
+    assert ".kpi-grid > .stat-card.kpi-tone--good" in css
+    assert ".kpi-grid > .stat-card.kpi-tone--bad" in css
+    assert "repeating-linear-gradient" in css
+    assert "translateY(-3px)" in css

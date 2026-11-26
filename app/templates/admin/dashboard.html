@@ -86,7 +86,7 @@
 const charts = {};
 const palette = ['#5546E8','#16A36A','#E9A23B','#DC4C4C','#3984E8','#9299AA','#8B5CF6','#0EA5E9'];
 function range(){ return document.getElementById('range').value; }
-function card(label,value,sub){ return `<div class="stat-card"><div class="stat-label">${esc(label)}</div><div class="stat-value">${esc(value)}</div>${sub?`<div class="text-xs text-muted">${esc(sub)}</div>`:''}</div>`; }
+function card(label,value,sub,tone){ return `<div class="stat-card kpi-tone--${tone}"><div class="stat-label">${esc(label)}</div><div class="stat-value">${esc(value)}</div>${sub?`<div class="text-xs text-muted">${esc(sub)}</div>`:''}</div>`; }
 async function get(url){ const r=await fetch(url,{credentials:'same-origin'}); return r.json(); }
 async function loadAll(){
   document.getElementById('updated').textContent='Refreshing…';
@@ -98,18 +98,18 @@ async function loadAll(){
   if(s.success){
     const d=s.data;
     document.getElementById('kpis').innerHTML=[
-      card('Total users',d.users.total,`${d.users.active} active`),
-      card('Total stories',d.stories.total,`${d.stories.new_in_range} new`),
-      card('Tokens in circulation',d.tokens.in_circulation,'internal credits'),
-      card('Generation success',d.stories.success_rate+'%',`${d.stories.by_generation.succeeded||0} succeeded`),
-      card('New users',d.users.new_in_range,'selected range'),
-      card('Editing',d.stories.editing,'stories'),
-      card('Completed',d.stories.completed,'stories'),
-      card('Avg tokens / user',d.tokens.average_balance,`${d.tokens.low_balance_users} low balance`),
-      card('Inactive users',d.users.inactive||0,'accounts blocked'),
-      card('Soft-deleted stories',d.stories.deleted||0,'excluded from totals'),
-      card('Tokens consumed',d.tokens.consumed||0,`${d.tokens.consumed_in_range||0} in range`),
-      card('Gemini tokens',(d.tokens.gemini_input||0)+(d.tokens.gemini_output||0),`${d.tokens.gemini_input||0} in / ${d.tokens.gemini_output||0} out`),
+      card('Total users',d.users.total,`${d.users.active} active`,'neutral'),
+      card('Total stories',d.stories.total,`${d.stories.new_in_range} new`,'neutral'),
+      card('Tokens in circulation',d.tokens.in_circulation,'internal credits','neutral'),
+      card('Generation success',d.stories.success_rate+'%',`${d.stories.by_generation.succeeded||0} succeeded`,'good'),
+      card('New users',d.users.new_in_range,'selected range','good'),
+      card('Editing',d.stories.editing,'stories','neutral'),
+      card('Completed',d.stories.completed,'stories','good'),
+      card('Avg tokens / user',d.tokens.average_balance,`${d.tokens.low_balance_users} low balance`,'neutral'),
+      card('Inactive users',d.users.inactive||0,'accounts blocked','bad'),
+      card('Soft-deleted stories',d.stories.deleted||0,'excluded from totals','bad'),
+      card('Tokens consumed',d.tokens.consumed||0,`${d.tokens.consumed_in_range||0} in range`,'neutral'),
+      card('Gemini tokens',(d.tokens.gemini_input||0)+(d.tokens.gemini_output||0),`${d.tokens.gemini_input||0} in / ${d.tokens.gemini_output||0} out`,'gemini'),
     ].join('');
     const low=(d.users.low_balance||[]).map(u=>`<div class="flex justify-between py-1 border-b"><span>${esc(u.username)}</span><span class="badge badge-warning">${esc(u.token_balance)} tokens</span></div>`).join('');
     const failed=(d.stories.recent_failures||[]).map(f=>`<div class="flex justify-between py-1 border-b"><span>${esc(f.title)} <span class="text-muted">${esc(f.username)}</span></span><span class="badge badge-error">failed</span></div>`).join('');
