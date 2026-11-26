@@ -22,6 +22,7 @@
       <button type="button" class="sidebar-close" data-sidebar-close aria-label="Close menu">×</button>
     </div>
     <nav class="space-y-1">
+      <a href="/admin/home" class="nav-link {{ 'active' if request.path == '/admin/home' }}" title="Welcome"><i class="material-icons">home</i><span class="nav-label">Welcome</span></a>
       {% if can('analytics') %}<a href="/admin" class="nav-link {{ 'active' if request.path == '/admin' }}" title="Analytics"><i class="material-icons">dashboard</i><span class="nav-label">Analytics</span></a>{% endif %}
       {% if can('users_view') %}<a href="/admin/users" class="nav-link {{ 'active' if request.path == '/admin/users' }}" title="User Editing"><i class="material-icons">people</i><span class="nav-label">User Editing</span></a>{% endif %}
       {% if can('roles_view') %}<a href="/admin/roles" class="nav-link {{ 'active' if request.path == '/admin/roles' }}" title="Role Access"><i class="material-icons">security</i><span class="nav-label">Role Access</span></a>{% endif %}

@@ -70,7 +70,7 @@ def test_admin_sidebar_icons_are_valid_material_ligatures():
     icons = re.findall(r'<i class="material-icons">([^<]+)</i>', html)
     assert icons
     assert set(icons) <= {
-        "dashboard", "people", "security", "storage", "auto_stories",
+        "dashboard", "home", "people", "security", "storage", "auto_stories",
         "how_to_reg", "settings", "system_update",
     }
 
@@ -206,3 +206,20 @@ def test_welcome_page_has_workspace_tiles(client, ctx):
     for tile_id in ("wsVal1", "wsVal2", "wsVal3", "wsVal4", "wsRecent", "workspace"):
         assert f'id="{tile_id}"' in html
     assert "aria-busy=\"true\"" in html
+
+
+def test_welcome_link_in_both_sidebars(client, ctx):
+    user = _make_user(ctx, "welcome_nav_user")
+    admin = _make_user(ctx, "welcome_nav_super", "SUPER_ADMIN")
+
+    _login(client, user, "USER")
+    html = client.get("/home").get_data(as_text=True)
+    assert 'href="/home"' in html
+    assert '>home</i>' in html
+    assert "Welcome</span>" in html
+
+    _login(client, admin, "SUPER_ADMIN")
+    html = client.get("/admin/home").get_data(as_text=True)
+    assert 'href="/admin/home"' in html
+    assert '>home</i>' in html
+    assert "Welcome</span>" in html

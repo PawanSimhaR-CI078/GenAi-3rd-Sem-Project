@@ -21,6 +21,7 @@
       <button type="button" class="sidebar-close" data-sidebar-close aria-label="Close menu">×</button>
     </div>
     <nav class="space-y-1">
+      <a href="/home" class="nav-link" data-nav="welcome" title="Welcome"><i class="material-icons nav-icon" aria-hidden="true">home</i><span class="nav-label">Welcome</span></a>
       <a href="/dashboard" class="nav-link" data-nav="dashboard" title="Dashboard"><i class="material-icons nav-icon" aria-hidden="true">dashboard</i><span class="nav-label">Dashboard</span></a>
       <a href="/stories/new" class="nav-link" data-nav="create" title="Create Story"><i class="material-icons nav-icon" aria-hidden="true">add</i><span class="nav-label">Create Story</span></a>
       <a href="/stories?status=EDITING" class="nav-link" data-nav="editing" title="Editing"><i class="material-icons nav-icon" aria-hidden="true">edit</i><span class="nav-label">Editing</span></a>
@@ -69,7 +70,8 @@ setInterval(tick,1000); tick(); loadMe();
   const path = location.pathname;
   const status = new URLSearchParams(location.search).get('status');
   let active = null;
-  if (path === '/dashboard') active = '/dashboard';
+  if (path === '/home') active = '/home';
+  else if (path === '/dashboard') active = '/dashboard';
   else if (path === '/stories/new') active = '/stories/new';
   else if (path === '/stories') active = status === 'COMPLETED' ? '/stories?status=COMPLETED' : status === 'EDITING' ? '/stories?status=EDITING' : null;
   else if (path === '/wallet') active = '/wallet';
