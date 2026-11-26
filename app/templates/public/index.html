@@ -1,49 +1,130 @@
 {% extends "public/base_public.html" %}
 {% block title %}TOLSTOY — AI Story to Comic Script Generator{% endblock %}
 {% block content %}
-<section class="hero">
-  <div class="max-w-3xl mx-auto px-6">
-    <span class="badge badge-primary mb-4">AI-powered storytelling</span>
-    <h1 class="hero-title">Turn your story ideas into comic scripts</h1>
-    <p class="hero-sub">TOLSTOY transforms your ideas into structured, scene-by-scene comic scripts using AI. Write, generate, edit, and manage your stories in one workspace.</p>
-    <div class="flex gap-3 justify-center">
-      <a href="/register" class="btn btn-primary btn-lg">Start creating</a>
+<section class="lp-hero">
+  <div class="lp-hero-copy">
+    <span class="badge badge-primary">A writing tool for comic makers</span>
+    <h1>Your story, laid out as a comic script</h1>
+    <p>Give TOLSTOY your idea and your notes. You get a written script with scenes, panels, dialogue and narration. No drawing, no image files.</p>
+    <div class="lp-actions">
+      <a href="/register" class="btn btn-primary btn-lg">Get started</a>
       <a href="/login" class="btn btn-secondary btn-lg">Sign in</a>
     </div>
   </div>
-</section>
 
-<section class="max-w-6xl mx-auto px-6 pb-16">
-  <h2 class="text-center mb-8">How it works</h2>
-  <div class="feature-grid">
-    <div class="card">
-      <h3 class="card-title mb-2">1. Write your story</h3>
-      <p class="text-sm text-secondary">Add a title, idea, characters, audience and length. TOLSTOY captures your creative direction.</p>
+  <div class="lp-script" aria-hidden="true">
+    <div class="lp-script-bar">
+      <span class="lp-script-dot"></span>
+      <span class="lp-script-dot"></span>
+      <span class="lp-script-dot"></span>
+      <span class="lp-script-name">comic_script.json</span>
     </div>
-    <div class="card">
-      <h3 class="card-title mb-2">2. Generate with AI</h3>
-      <p class="text-sm text-secondary">Gemini turns your input into a structured comic script with scenes, panels, dialogue and narration.</p>
-    </div>
-    <div class="card">
-      <h3 class="card-title mb-2">3. Edit & organize</h3>
-      <p class="text-sm text-secondary">Refine scripts, move stories between Editing and Completed, and track your token balance.</p>
+    <div class="lp-script-body">
+      <div class="lp-script-line"><span class="lp-script-key">"scene"</span><span class="lp-script-value">"01"</span></div>
+      <div class="lp-script-line"><span class="lp-script-key">"panel"</span><span class="lp-script-value">"01"</span></div>
+      <div class="lp-script-line"><span class="lp-script-key">"dialogue"</span><span class="lp-script-value">"spoken words"</span></div>
+      <div class="lp-script-line"><span class="lp-script-key">"narration"</span><span class="lp-script-value">"what the reader sees"</span></div>
     </div>
   </div>
 </section>
 
-<section class="max-w-6xl mx-auto px-6 pb-16">
-  <h2 class="text-center mb-8">Features</h2>
-  <div class="feature-grid">
-    <div class="card"><h3 class="card-title mb-2">Structured scripts</h3><p class="text-sm text-secondary">Scenes, panels, characters, dialogue and narration in clean JSON.</p></div>
-    <div class="card"><h3 class="card-title mb-2">Token system</h3><p class="text-sm text-secondary">5 tokens to start, +5 every 48 hours. Transparent usage.</p></div>
-    <a class="card" href="/admin/login" style="display:block;color:inherit;text-decoration:none;"><h3 class="card-title mb-2">Admin dashboard</h3><p class="text-sm text-secondary">Analytics, user management, database viewer, maintenance mode. Sign in here.</p></a>
-    <div class="card"><h3 class="card-title mb-2">Secure by design</h3><p class="text-sm text-secondary">Session auth, CSRF, hashed passwords, backend enforcement.</p></div>
+<section id="proof" class="lp-proof">
+  <p class="lp-eyebrow">The short version</p>
+  <div class="lp-proof-grid">
+    <div class="lp-proof-item"><strong>5 tokens when you sign up, plus 5 every 48 hours</strong><span>added to your balance</span></div>
+    <div class="lp-proof-item"><strong>Structured JSON</strong><span>scenes, panels, dialogue and narration</span></div>
+    <div class="lp-proof-item"><strong>EDITING and COMPLETED</strong><span>two states for every story</span></div>
+    <div class="lp-proof-item"><strong>Session login and CSRF</strong><span>account access and protected changes</span></div>
   </div>
 </section>
 
-<section class="max-w-3xl mx-auto px-6 pb-16 text-center">
-  <h2 class="mb-4">Ready to create?</h2>
-  <p class="text-secondary mb-6">Start your first comic script in seconds.</p>
-  <a href="/register" class="btn btn-primary btn-lg">Start creating</a>
+<section id="problem" class="lp-problem">
+  <h2>The idea is there. The script is the work.</h2>
+  <p>A story often starts as a scene in your head, a page of notes or a draft that nobody has read yet. A comic script asks for more. You have to decide what each panel shows, which words belong to which character and where one scene gives way to the next.</p>
+  <p>TOLSTOY takes that first pass and puts it in a form you can edit. The story choices stay with you.</p>
+</section>
+
+<section id="how" class="lp-steps">
+  <h2>From brief to script in three steps</h2>
+  <div class="feature-grid">
+    <article class="card">
+      <span class="badge badge-muted">Step 1</span>
+      <h3 class="card-title">Write the brief</h3>
+      <p class="text-sm text-secondary">Add a title and your story idea or story text. Choose the character gender, audience, length and language you want.</p>
+    </article>
+    <article class="card">
+      <span class="badge badge-muted">Step 2</span>
+      <h3 class="card-title">Generate the script</h3>
+      <p class="text-sm text-secondary">Gemini turns the brief into structured JSON, split into scenes and panels with dialogue and narration.</p>
+    </article>
+    <article class="card">
+      <span class="badge badge-muted">Step 3</span>
+      <h3 class="card-title">Read it and keep working</h3>
+      <p class="text-sm text-secondary">A new story stays in EDITING while you revise it. Mark it COMPLETED when it is ready, or move it back if you want another pass.</p>
+    </article>
+  </div>
+</section>
+
+<section id="features" class="lp-benefits">
+  <h2>What you get in the workspace</h2>
+  <div class="feature-grid">
+    <article class="card">
+      <h3 class="card-title">A script with structure</h3>
+      <p class="text-sm text-secondary">The generated script is JSON text. Scenes, panels, dialogue and narration each have their place, so you can read it or work from the raw output.</p>
+    </article>
+    <article class="card">
+      <h3 class="card-title">A story you can revisit</h3>
+      <p class="text-sm text-secondary">EDITING and COMPLETED are separate from the generation result. Finishing a story does not lock it.</p>
+    </article>
+    <article class="card">
+      <h3 class="card-title">A balance you can follow</h3>
+      <p class="text-sm text-secondary">Your token balance sits in the user area. New accounts get 5 tokens, and 5 more arrive every 48 hours without resetting what is left.</p>
+    </article>
+    <article class="card">
+      <h3 class="card-title">Rules enforced on the server</h3>
+      <p class="text-sm text-secondary">Login uses Flask sessions. Changes are protected by CSRF tokens, and access checks run in the backend for every request.</p>
+    </article>
+  </div>
+</section>
+
+<section id="tokens" class="lp-tokens">
+  <h2>How tokens work</h2>
+  <p>New accounts start with 5 tokens. Every 48 hours, 5 more are added to what you already have. Nothing is reset when a refill lands.</p>
+  <p>Generating a script spends tokens. The server works out the cost from a central setting before the request runs, so the browser never decides the price. If a generation fails after the deduction, the tokens go back to your balance.</p>
+  <p>These are TOLSTOY credits. They are separate from the usage figures reported by the Gemini API.</p>
+  <a href="/register" class="btn btn-secondary">Create an account</a>
+</section>
+
+<section id="faq" class="lp-faq">
+  <h2>Questions before you start</h2>
+  <details>
+    <summary>Does TOLSTOY draw the comic?</summary>
+    <p>No. It writes the script. The output is text with scenes, panels, dialogue and narration, no images.</p>
+  </details>
+  <details>
+    <summary>What do I get when I sign up?</summary>
+    <p>An account with 5 tokens and a workspace for your stories. You can write a brief, generate a script and edit it there.</p>
+  </details>
+  <details>
+    <summary>What happens after 48 hours?</summary>
+    <p>5 tokens are added to your balance. They stack on top of whatever you have left, rather than replacing it.</p>
+  </details>
+  <details>
+    <summary>Can I change a script after generating it?</summary>
+    <p>Yes. Stories stay in EDITING while you work on them. Move one to COMPLETED when you are done and back to EDITING whenever you want to revise it.</p>
+  </details>
+  <details>
+    <summary>Who decides what a generation costs?</summary>
+    <p>The server, using one shared setting for all accounts. The page cannot change that number, and a failed generation is refunded.</p>
+  </details>
+</section>
+
+<section id="start" class="lp-final">
+  <h2>Bring the story you already have</h2>
+  <p>Write a short brief, generate the script and keep editing until it reads the way you want. Your first 5 tokens are waiting once you create an account.</p>
+  <div class="lp-actions">
+    <a href="/register" class="btn btn-primary btn-lg">Get started</a>
+    <a href="/login" class="btn btn-secondary btn-lg">Sign in</a>
+  </div>
 </section>
 {% endblock %}
