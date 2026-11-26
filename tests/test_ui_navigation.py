@@ -189,13 +189,13 @@ def test_login_forms_redirect_to_welcome_page():
     from pathlib import Path
 
     root = Path(__file__).resolve().parents[1]
-    login = (root / "app/templates/public/login.html").read_text(encoding="utf-8")
+    script = (root / "app/templates/public/_auth_script.html").read_text(encoding="utf-8")
     admin_login = (root / "app/templates/public/admin_login.html").read_text(encoding="utf-8")
-    for html in (login, admin_login):
+    for html in (script, admin_login):
         assert "sessionStorage.setItem('tolstoy_tab','1')" in html
         assert "'/admin/home'" in html
-    assert "'/home'" in login
-    assert "'/dashboard'" not in login
+    assert "'/home'" in script
+    assert "'/dashboard'" not in script
     assert "window.location='/admin/home'" in admin_login
 
 

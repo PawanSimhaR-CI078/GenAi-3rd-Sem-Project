@@ -19,5 +19,51 @@ def test_login_and_register_share_auth_shell(client):
 
     assert 'data-auth-mode="login"' in login
     assert 'data-auth-mode="register"' in register
-    assert "right-panel-active" not in login
-    assert "right-panel-active" in register
+    assert 'id="authContainer" class="auth-shell"' in login
+    assert 'id="authContainer" class="auth-shell right-panel-active"' in register
+
+
+def test_auth_shell_exposes_controls_and_live_regions(client):
+    for path in ("/login", "/register"):
+        html = client.get(path).get_data(as_text=True)
+        for control_id in ("authSignInBtn", "authSignUpBtn", "loginSubmitBtn",
+                           "registerSubmitBtn", "authMobileSignIn", "authMobileSignUp"):
+            assert f'id="{control_id}"' in html, (path, control_id)
+        assert html.count('aria-live="polite"') == 2, path
+        assert html.count("data-pw-toggle=") == 2, path
+
+
+def test_shared_auth_script_uses_real_endpoints(client):
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    script = (root / "app/templates/public/_auth_script.html").read_text(encoding="utf-8")
+    html = client.get("/login").get_data(as_text=True)
+
+    assert "history.replaceState" in script
+    assert "'/login'" in script and "'/register'" in script
+    assert "/api/v1/auth/user/login" in script
+    assert "/api/v1/auth/register" in script
+    assert "sessionStorage.setItem('tolstoy_tab','1')" in script
+    assert "'/admin/home'" in script and "'/home'" in script
+    assert ".focus()" in script
+    assert "authReady" in script
+    assert "_auth_script.html" not in html
+    assert "loginForm" in html
+
+
+def test_shared_auth_script_only_hides_panels_on_mobile():
+    import re
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    script = (root / "app/templates/public/_auth_script.html").read_text(encoding="utf-8")
+
+    assert "window.matchMedia('(max-width: 768px)')" in script
+    assert "mobileQuery.addEventListener('change'" in script
+    branches = re.search(r"if \(mobileQuery\.matches\) \{(.*?)\} else \{(.*?)\}", script, re.S)
+    assert branches
+    assert "signInPanel.hidden = register;" in branches.group(1)
+    assert "signUpPanel.hidden = !register;" in branches.group(1)
+    assert "signInPanel.hidden = false;" in branches.group(2)
+    assert "signUpPanel.hidden = false;" in branches.group(2)

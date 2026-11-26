@@ -1,0 +1,96 @@
+<script>
+(function () {
+  const container = document.getElementById('authContainer');
+  if (!container) return;
+
+  const signInPanel = container.querySelector('.auth-form-panel--signin');
+  const signUpPanel = container.querySelector('.auth-form-panel--signup');
+  const mobileSignIn = document.getElementById('authMobileSignIn');
+  const mobileSignUp = document.getElementById('authMobileSignUp');
+  const mobileQuery = window.matchMedia('(max-width: 768px)');
+
+  function setMode(mode) {
+    const register = mode === 'register';
+    container.classList.toggle('right-panel-active', register);
+    container.setAttribute('data-auth-mode', mode);
+    history.replaceState(null, '', register ? '/register' : '/login');
+    if (mobileQuery.matches) {
+      signInPanel.hidden = register;
+      signUpPanel.hidden = !register;
+    } else {
+      signInPanel.hidden = false;
+      signUpPanel.hidden = false;
+    }
+    mobileSignIn.setAttribute('aria-pressed', String(!register));
+    mobileSignUp.setAttribute('aria-pressed', String(register));
+  }
+
+  document.getElementById('authSignInBtn').addEventListener('click', function () { setMode('login'); });
+  document.getElementById('authSignUpBtn').addEventListener('click', function () { setMode('register'); });
+  mobileSignIn.addEventListener('click', function () { setMode('login'); });
+  mobileSignUp.addEventListener('click', function () { setMode('register'); });
+
+  document.querySelectorAll('[data-pw-toggle]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      const input = document.getElementById(button.getAttribute('data-pw-toggle'));
+      if (!input) return;
+      const revealing = input.type === 'password';
+      input.type = revealing ? 'text' : 'password';
+      button.textContent = revealing ? 'hide' : 'show';
+    });
+  });
+
+  function showError(element, text) {
+    element.textContent = text;
+    element.focus();
+  }
+
+  function bindSubmit(formId, buttonId, messageId, endpoint, busyText, idleText, onSuccess) {
+    const form = document.getElementById(formId);
+    const button = document.getElementById(buttonId);
+    const message = document.getElementById(messageId);
+    message.setAttribute('tabindex', '-1');
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      message.textContent = '';
+      button.disabled = true;
+      button.textContent = busyText;
+      const body = Object.fromEntries(new FormData(form).entries());
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          credentials: 'same-origin'
+        });
+        const result = await response.json();
+        if (result.success) {
+          onSuccess(result);
+          return;
+        }
+        showError(message, result.message || 'Please try again.');
+      } catch (error) {
+        showError(message, 'Could not reach TOLSTOY. Please try again.');
+      } finally {
+        button.disabled = false;
+        button.textContent = idleText;
+      }
+    });
+  }
+
+  bindSubmit('loginForm', 'loginSubmitBtn', 'loginMsg', '/api/v1/auth/user/login', 'Signing in...', 'Sign in', function (result) {
+    sessionStorage.setItem('tolstoy_tab','1');
+    window.location = (result.data.role === 'ADMIN' || result.data.role === 'SUPER_ADMIN') ? '/admin/home' : '/home';
+  });
+
+  bindSubmit('registerForm', 'registerSubmitBtn', 'registerMsg', '/api/v1/auth/register', 'Creating...', 'Create account', function () {
+    window.location='/login';
+  });
+
+  setMode(container.getAttribute('data-auth-mode') || 'login');
+  mobileQuery.addEventListener('change', function () {
+    setMode(container.getAttribute('data-auth-mode') || 'login');
+  });
+  window.TOLSTOY.authReady = true;
+})();
+</script>
