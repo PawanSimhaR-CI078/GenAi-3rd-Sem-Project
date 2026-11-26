@@ -13,7 +13,7 @@ HTML5, Jinja2, CSS3, Vanilla JS. Tailwind and Chart.js via CDN (pin versions bef
 
 ## 3. Public Pages
 
-- **Landing:** hero, features, CTA (login/register).
+- **Landing:** nav, hero with script preview, proof strip, problem, how it works, benefits, token model, FAQ, final CTA and footer; the four-column footer is shared with every public page through `base_public.html`.
 - **Register:** username, password, display name, phone (optional), validation.
 - **User login:** username + password.
 - **Admin login:** separate route/page.

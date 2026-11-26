@@ -25,6 +25,9 @@ for p in ["/", "/login", "/register", "/admin/login", "/maintenance"]:
     r = requests.get(BASE + p)
     rec(f"GET {p} 200", r.status_code == 200, r.status_code)
 
+r = requests.get(BASE + "/")
+rec("GET / landing sections 200", r.status_code == 200 and all(x in r.text for x in ('id="proof"', 'id="faq"', 'site-footer__grid', 'lp-script')), r.status_code)
+
 r = requests.get(BASE + "/dashboard", allow_redirects=False)
 rec("GET /dashboard unauth redirects", r.status_code in (302, 303), r.status_code)
 
